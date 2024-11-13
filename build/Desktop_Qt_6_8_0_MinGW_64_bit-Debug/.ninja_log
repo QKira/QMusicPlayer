@@ -1,0 +1,9 @@
+# ninja log v6
+4	694	7531822649755589	QMusicPlayer_autogen/timestamp	7062aba1fb32c27b
+4	694	7531822649755589	QMusicPlayer_autogen/mocs_compilation.cpp	7062aba1fb32c27b
+4	694	7531822649755589	D:/000_QtPro/QMusicPlayer/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/QMusicPlayer_autogen/timestamp	7062aba1fb32c27b
+4	694	7531822649755589	D:/000_QtPro/QMusicPlayer/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/QMusicPlayer_autogen/mocs_compilation.cpp	7062aba1fb32c27b
+704	2522	7531822650595722	CMakeFiles/QMusicPlayer.dir/QMusicPlayer_autogen/mocs_compilation.cpp.obj	b608f9fd5a3fcb85
+713	2645	7531822650685759	CMakeFiles/QMusicPlayer.dir/main.cpp.obj	8719723f89dc9eca
+721	2675	7531822650765774	CMakeFiles/QMusicPlayer.dir/mainwindow.cpp.obj	7456b0f838152d01
+2680	2842	7531822670356071	QMusicPlayer.exe	b65912782ef19a61
