@@ -1,1 +1,1 @@
-a Music player based on Qt
+# a Music player based on Qt
