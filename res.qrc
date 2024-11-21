@@ -1,0 +1,40 @@
+<RCC>
+    <qresource prefix="/fonts">
+        <file>res/fonts/fontawesome-webfont.ttf</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>res/images/logo.png</file>
+        <file>res/images/logo_bak.png</file>
+    </qresource>
+    <qresource prefix="/stylesheets">
+        <file>res/stylesheets/silvery.css</file>
+        <file>res/stylesheets/silvery/add_bottom.png</file>
+        <file>res/stylesheets/silvery/add_left.png</file>
+        <file>res/stylesheets/silvery/add_right.png</file>
+        <file>res/stylesheets/silvery/add_top.png</file>
+        <file>res/stylesheets/silvery/branch_close.png</file>
+        <file>res/stylesheets/silvery/branch_open.png</file>
+        <file>res/stylesheets/silvery/calendar_nextmonth.png</file>
+        <file>res/stylesheets/silvery/calendar_prevmonth.png</file>
+        <file>res/stylesheets/silvery/checkbox_checked.png</file>
+        <file>res/stylesheets/silvery/checkbox_checked_disable.png</file>
+        <file>res/stylesheets/silvery/checkbox_parcial.png</file>
+        <file>res/stylesheets/silvery/checkbox_parcial_disable.png</file>
+        <file>res/stylesheets/silvery/checkbox_unchecked.png</file>
+        <file>res/stylesheets/silvery/checkbox_unchecked_disable.png</file>
+        <file>res/stylesheets/silvery/radiobutton_checked.png</file>
+        <file>res/stylesheets/silvery/radiobutton_checked_disable.png</file>
+        <file>res/stylesheets/silvery/radiobutton_unchecked.png</file>
+        <file>res/stylesheets/silvery/radiobutton_unchecked_disable.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>res/icons/logo_16.ico</file>
+        <file>res/icons/logo_24.ico</file>
+        <file>res/icons/logo_32.ico</file>
+        <file>res/icons/music.svg</file>
+        <file>res/icons/window-maximize.svg</file>
+        <file>res/icons/window-minimize.svg</file>
+        <file>res/icons/window-restore.svg</file>
+        <file>res/icons/xmark.svg</file>
+    </qresource>
+</RCC>
