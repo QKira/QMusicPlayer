@@ -96,7 +96,7 @@ public:
     QLabel *getLabTitle()           const;
     QPushButton *getBtnMenuMin()    const;
     QPushButton *getBtnMenuMax()    const;
-    QPushButton *getBtnMenuMClose() const;
+    QPushButton *getBtnMenuClose() const;
 
     QString getTitle()              const;
     Qt::Alignment getAlignment()    const;

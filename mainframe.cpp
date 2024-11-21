@@ -103,7 +103,7 @@ bool MainFrame::eventFilter(QObject *obj, QEvent *evt)
     if (evt->type() == QEvent::WindowStateChange)
     {
         //打印窗口状态
-        qDebug()<< this->windowState();
+        // qDebug()<< this->windowState();
     }
 
     QMouseEvent *event = static_cast<QMouseEvent *>(evt);
@@ -172,7 +172,7 @@ QPushButton *MainFrame::getBtnMenuMax() const
     return this->btn_MenuMax;
 }
 
-QPushButton *MainFrame::getBtnMenuMClose() const
+QPushButton *MainFrame::getBtnMenuClose() const
 {
     return this->btn_MenuClose;
 }
