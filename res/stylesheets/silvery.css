@@ -2,9 +2,9 @@
 /* objectNames
 QWidget:
 #widget_Title
-#widget_left
-#widget_bottom
-#widget_top
+#widget_Left
+#widget_Bottom
+#widget_Top
 #widget_Menu
 
 QLabel:
@@ -45,30 +45,30 @@ border:1px solid #B2B6B9;
 border-radius:3px;
 }
 
-QWidget#widget_Title,QWidget#widget_left{
+QWidget#widget_Title,QWidget#widget_Left{
 background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #E1E4E6,stop:1 #CCD3D9);
 }
 
-QWidget#widget_bottom{
+QWidget#widget_Bottom{
 background:#E1E4E6;
 }
 
-QWidget#widget_bottom>QFrame{
+QWidget#widget_Bottom>QFrame{
 border:1px solid #000000;
 }
 
-QLabel#label_Title,QWidget#widget_Title>QLabel,QWidget#widget_bottom>QLabel{
+QLabel#label_Title,QWidget#widget_Title>QLabel,QWidget#widget_Bottom>QLabel{
 border-radius:0px;
 color:#000000;
 background:none;
 border-style:none;
 }
 
-QWidget#widget_top>QToolButton::menu-indicator,QWidget#widget_Menu>QToolButton::menu-indicator{
+QWidget#widget_Top>QToolButton::menu-indicator,QWidget#widget_Menu>QToolButton::menu-indicator{
 image:None;
 }
 
-QWidget#widget_top>QToolButton,QWidget#widget_top>QLabel{
+QWidget#widget_Top>QToolButton,QWidget#widget_Top>QLabel{
 border-style:none;
 border-radius:0px;
 padding:5px;
@@ -76,7 +76,7 @@ color:#000000;
 background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #E1E4E6,stop:1 #CCD3D9);
 }
 
-QWidget#widget_top>QToolButton:pressed,QWidget#widget_top>QToolButton:hover,QWidget#widget_top>QToolButton:checked,QWidget#widget_top>QLabel:hover{
+QWidget#widget_Top>QToolButton:pressed,QWidget#widget_Top>QToolButton:hover,QWidget#widget_Top>QToolButton:checked,QWidget#widget_Top>QLabel:hover{
 border-style:solid;
 border-width:0px 0px 2px 0px;
 border-color:#00BB9E;
@@ -162,19 +162,19 @@ margin:1px 1px 2px 1px;
 background-color:rgba(238,0,0,128);
 }
 
-QWidget#widget_left>QPushButton,QWidget#widget_left>QToolButton{
+QWidget#widget_Left>QPushButton,QWidget#widget_Left>QToolButton{
 border-radius:0px;
 color:#000000;
 background:none;
 border-style:none;
 }
 
-QWidget#widget_left>QPushButton:hover,QWidget#widget_left>QToolButton:hover{
+QWidget#widget_Left>QPushButton:hover,QWidget#widget_Left>QToolButton:hover{
 color:#FFFFFF;
 background-color:#00BB9E;
 }
 
-QWidget#widget_left>QPushButton:checked,QWidget#widget_left>QToolButton:checked,QWidget#widget_left>QPushButton:pressed,QWidget#widget_left>QToolButton:pressed{
+QWidget#widget_Left>QPushButton:checked,QWidget#widget_Left>QToolButton:checked,QWidget#widget_Left>QPushButton:pressed,QWidget#widget_Left>QToolButton:pressed{
 color:#000000;
 border-style:solid;
 border-width:0px 0px 0px 2px;

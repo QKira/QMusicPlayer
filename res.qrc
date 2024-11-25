@@ -28,13 +28,6 @@
         <file>res/stylesheets/silvery/radiobutton_unchecked_disable.png</file>
     </qresource>
     <qresource prefix="/icons">
-        <file>res/icons/logo_16.ico</file>
-        <file>res/icons/logo_24.ico</file>
-        <file>res/icons/logo_32.ico</file>
-        <file>res/icons/music.svg</file>
-        <file>res/icons/window-maximize.svg</file>
-        <file>res/icons/window-minimize.svg</file>
-        <file>res/icons/window-restore.svg</file>
-        <file>res/icons/xmark.svg</file>
+        <file>res/icons/logo.ico</file>
     </qresource>
 </RCC>

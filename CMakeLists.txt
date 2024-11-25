@@ -33,11 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         appinit.h
         appinit.cpp
         centralwidget.h centralwidget.cpp centralwidget.ui
-
-
-
-
-
+        icon.rc
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QMusicPlayer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -73,6 +69,7 @@ set_target_properties(QMusicPlayer PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/logo_32.ico"
 )
 
 include(GNUInstallDirs)
