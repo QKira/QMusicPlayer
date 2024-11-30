@@ -11,14 +11,6 @@ class CentralWidget : public QWidget
 {
     Q_OBJECT
 
-private:
-    enum BTN_NAVI{
-        BTN_NAVI_LIBRARY = 0,
-        BTN_NAVI_PLAYLISTS = 1,
-        BTN_NAVI_PLAYING = 2,
-        BTN_NAVI_SETTINGS = 3,
-    };
-
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget();
@@ -26,8 +18,15 @@ public:
 private:
     Ui::CentralWidget *ui;
 
+//Page_Playing
 private:
-    void initForm();
+    float detailPicScale;
+    void initPagePlayingUI();
+
+
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
 
 private slots:
     void handleNaviButtonClick();

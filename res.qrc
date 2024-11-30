@@ -3,8 +3,7 @@
         <file>res/fonts/fontawesome-webfont.ttf</file>
     </qresource>
     <qresource prefix="/images">
-        <file>res/images/logo.png</file>
-        <file>res/images/logo_bak.png</file>
+        <file>res/images/preview.jpg</file>
     </qresource>
     <qresource prefix="/stylesheets">
         <file>res/stylesheets/silvery.css</file>

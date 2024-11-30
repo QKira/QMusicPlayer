@@ -33,6 +33,12 @@ QStatusBar:
 #item
 */
 
+/* EXTRA */
+QWidget#page_Playing,QWidget#page_Playlists,QWidget#page_Library,QWidget#page_Settings {
+background-color: rgb(245, 245, 245);
+}
+
+
 QPalette{background:#F5F5F5;}*{outline:0px;color:#000000;}
 
 QWidget[form="true"],QLabel[frameShape="1"]{

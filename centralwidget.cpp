@@ -16,11 +16,52 @@ CentralWidget::CentralWidget(QWidget *parent)
         connect(naviBtn, &QPushButton::clicked, this, &CentralWidget::handleNaviButtonClick);
     }
     ui->stackedWidget->setCurrentIndex(0);
+
+    initPagePlayingUI();
+
+    // QList<QObject *> objs = ui->page_Playing->findChildren<QObject *>();
+    // foreach (QObject *obj, objs) {
+    //     qDebug() << obj->objectName();
+    // }
 }
 
 CentralWidget::~CentralWidget()
 {
     delete ui;
+}
+
+//Page_Playing
+void CentralWidget::initPagePlayingUI()
+{
+    QPixmap pixmap{":/images/res/images/preview.jpg"};
+    pixmap.scaled(ui->label_Playing_DetailPic->size(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    ui->label_Playing_DetailPic->setPixmap(pixmap);
+    ui->label_Playing_DetailPic->setScaledContents(true);
+    int imgW = pixmap.width();
+    int imgH = pixmap.height();
+    detailPicScale = imgW / imgH;
+    ui->label_Playing_DetailPic->resize(imgW, imgH);
+    ui->label_Playing_DetailPic->move(0, 0);
+}
+
+
+void CentralWidget::paintEvent(QPaintEvent *event)
+{
+//Page_Playing
+    if (ui->widget_Playing_DetailBlock->width() > ui->widget_Playing_DetailBlock->height())
+    {
+        float fScaleH = ui->widget_Playing_DetailBlock->height();
+        float fScaleW = fScaleH * detailPicScale;
+        ui->label_Playing_DetailPic->resize(fScaleW, fScaleH);
+        ui->label_Playing_DetailPic->move(0, 0);
+    }
+    else
+    {
+        float fScaleW = ui->widget_Playing_DetailBlock->width();
+        float fScaleH = fScaleW / detailPicScale;
+        ui->label_Playing_DetailPic->resize(fScaleW, fScaleH);
+        ui->label_Playing_DetailPic->move(0, 0);
+    }
 }
 
 void CentralWidget::handleNaviButtonClick()
