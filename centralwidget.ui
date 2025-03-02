@@ -65,7 +65,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QPushButton" name="btn_Playing">
+         <widget class="QPushButton" name="button_Playing">
           <property name="font">
            <font>
             <family>Microsoft YaHei UI</family>
@@ -85,7 +85,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_Playlists">
+         <widget class="QPushButton" name="button_Playlists">
           <property name="font">
            <font>
             <family>Microsoft YaHei UI</family>
@@ -104,7 +104,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_Library">
+         <widget class="QPushButton" name="button_Library">
           <property name="font">
            <font>
             <family>Microsoft YaHei UI</family>
@@ -123,7 +123,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_Settings">
+         <widget class="QPushButton" name="button_Settings">
           <property name="font">
            <font>
             <family>Microsoft YaHei UI</family>
@@ -142,7 +142,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="vSpacer">
+         <spacer name="vSpacer_WidgetLeft">
           <property name="orientation">
            <enum>Qt::Orientation::Vertical</enum>
           </property>
@@ -187,7 +187,7 @@
            <item>
             <widget class="QWidget" name="widget_Playing_DetailBlock" native="true">
              <property name="styleSheet">
-              <string notr="true">border:1px solid red;</string>
+              <string notr="true">/*border:1px solid red;*/</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <property name="spacing">
@@ -288,7 +288,7 @@
            <item>
             <widget class="QWidget" name="widget_Playing_LyricsBlock" native="true">
              <property name="styleSheet">
-              <string notr="true">border:1px solid blue;</string>
+              <string notr="true">/*border:1px solid blue;*/</string>
              </property>
             </widget>
            </item>
@@ -309,7 +309,7 @@
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">border:1px solid green;</string>
+            <string notr="true"/>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0">
             <property name="spacing">
@@ -418,8 +418,14 @@
                   </property>
                   <item>
                    <widget class="QSlider" name="slider_Playing_Progress">
+                    <property name="pageStep">
+                     <number>1</number>
+                    </property>
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TickPosition::NoTicks</enum>
                     </property>
                    </widget>
                   </item>
@@ -474,6 +480,9 @@
                     <property name="text">
                      <string>Current Time</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -492,6 +501,9 @@
                     </property>
                     <property name="text">
                      <string>Total Time</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -597,19 +609,315 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page_Playlists">
-        <widget class="QLabel" name="label_3">
-         <property name="geometry">
-          <rect>
-           <x>80</x>
-           <y>60</y>
-           <width>69</width>
-           <height>19</height>
-          </rect>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <property name="spacing">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string>Playlists</string>
+         <property name="leftMargin">
+          <number>0</number>
          </property>
-        </widget>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="widget_Playlists_Top" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QWidget" name="widget_Playlists_TopLeft" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_Playlists_1">
+                 <property name="font">
+                  <font>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="widget_Playlists_TopRight" native="true">
+              <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,0,0,0">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_Playlists_2">
+                 <property name="font">
+                  <font>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_Playlists_3">
+                 <property name="font">
+                  <font>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_Playlists_4">
+                 <property name="font">
+                  <font>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_Playlists_5">
+                 <property name="font">
+                  <font>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_Playlists_Bottom" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QWidget" name="widget_Playlists_BottomLeft" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QScrollArea" name="scrollArea_Playlists">
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+                 </property>
+                 <property name="widgetResizable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
+                 </property>
+                 <widget class="QWidget" name="scrollAreaWidget_Playlists">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>98</width>
+                    <height>451</height>
+                   </rect>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QPushButton" name="button_Playlists_favor">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="vSpacer_Playlists">
+                     <property name="orientation">
+                      <enum>Qt::Orientation::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="widget_Playlists_BottomRight" native="true">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="page_Library">
         <property name="palette">
@@ -1084,19 +1392,6 @@
         <property name="styleSheet">
          <string notr="true"/>
         </property>
-        <widget class="QLabel" name="label">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>20</y>
-           <width>69</width>
-           <height>19</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Library</string>
-         </property>
-        </widget>
        </widget>
        <widget class="QWidget" name="page_Settings">
         <widget class="QLabel" name="label_4">
@@ -1136,7 +1431,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_status">
+       <widget class="QLabel" name="label_Status">
         <property name="frameShape">
          <enum>QFrame::Shape::NoFrame</enum>
         </property>

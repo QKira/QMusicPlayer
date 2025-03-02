@@ -8,16 +8,12 @@ CentralWidget::CentralWidget(QWidget *parent)
     ui->setupUi(this);
     this->setProperty("form", true);
 
-    QList<QPushButton *> naviBtns = ui->widget_Left->findChildren<QPushButton *>();
-    foreach (QPushButton *naviBtn, naviBtns) {
-        if(naviBtn->objectName() == "btn_Playing") {
-            naviBtn->setChecked(true);
-        }
-        connect(naviBtn, &QPushButton::clicked, this, &CentralWidget::handleNaviButtonClick);
-    }
-    ui->stackedWidget->setCurrentIndex(0);
+    initWidgetleftUI();
 
     initPagePlayingUI();
+
+    initWidgetPlaylistsBottomLeftUI();
+    // testAddButton();
 
     // QList<QObject *> objs = ui->page_Playing->findChildren<QObject *>();
     // foreach (QObject *obj, objs) {
@@ -28,6 +24,24 @@ CentralWidget::CentralWidget(QWidget *parent)
 CentralWidget::~CentralWidget()
 {
     delete ui;
+}
+
+void CentralWidget::refreshNaviButtonPtrs()
+{
+    naviButtonPtrs = ui->widget_Left->findChildren<QPushButton *>();
+}
+
+//widget_Left
+void CentralWidget::initWidgetleftUI()
+{
+    refreshNaviButtonPtrs();
+    foreach (QPushButton *naviButton, naviButtonPtrs) {
+        if(naviButton->objectName() == "button_Playing") {
+            naviButton->setChecked(true);
+        }
+        connect(naviButton, &QPushButton::clicked, this, &CentralWidget::handleNaviButtonClick);
+    }
+    ui->stackedWidget->setCurrentIndex(0);
 }
 
 //Page_Playing
@@ -42,6 +56,41 @@ void CentralWidget::initPagePlayingUI()
     detailPicScale = imgW / imgH;
     ui->label_Playing_DetailPic->resize(imgW, imgH);
     ui->label_Playing_DetailPic->move(0, 0);
+}
+
+//Page_Playlists
+void CentralWidget::testAddButton()
+{
+    int i = 0;
+    foreach (QPushButton* buttonPtr, vct_ButtonPtrs) {
+        QString str = "Button " + QString::number(i);
+        buttonPtr = new QPushButton(str, ui->scrollAreaWidget_Playlists);
+        QLayout * sa = ui->scrollAreaWidget_Playlists->layout();
+        sa->addWidget(buttonPtr);
+        i++;
+        connect(buttonPtr, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+    }
+    refreshPlaylistsNaviButtonPtrs();
+}
+
+void CentralWidget::refreshPlaylistsNaviButtonPtrs()
+{
+    playlistsNaviButtonPtrs = ui->scrollAreaWidget_Playlists->findChildren<QPushButton *>();
+    foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
+        playlistsNaviButtonPtr->setCheckable(true);
+    }
+}
+
+void CentralWidget::initWidgetPlaylistsBottomLeftUI()
+{
+    refreshPlaylistsNaviButtonPtrs();
+
+    foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
+        if(playlistsNaviButtonPtr->objectName() == "button_Playlists_favor") {
+            playlistsNaviButtonPtr->setChecked(true);
+        }
+        connect(playlistsNaviButtonPtr, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+    }
 }
 
 
@@ -66,24 +115,39 @@ void CentralWidget::paintEvent(QPaintEvent *event)
 
 void CentralWidget::handleNaviButtonClick()
 {
-    QList<QPushButton *> naviBtns = ui->widget_Left->findChildren<QPushButton *>();
+    refreshNaviButtonPtrs();
 
-    QPushButton *clickedBtn = (QPushButton *)sender();
+    QPushButton *clickedButtonPtr = (QPushButton *)sender();
 
-    foreach (QPushButton *naviBtn, naviBtns) {
-        if(naviBtn == clickedBtn) {
-            naviBtn->setChecked(true);
+    foreach (QPushButton *naviButtonPtr, naviButtonPtrs) {
+        if(naviButtonPtr == clickedButtonPtr) {
+            naviButtonPtr->setChecked(true);
         } else {
-            naviBtn->setChecked(false);
+            naviButtonPtr->setChecked(false);
         }
     }
 
-    if(clickedBtn->objectName() == "btn_Playing")
+    if(clickedButtonPtr->objectName() == "button_Playing")
         ui->stackedWidget->setCurrentIndex(0);
-    else if(clickedBtn->objectName() == "btn_Playlists")
+    else if(clickedButtonPtr->objectName() == "button_Playlists")
         ui->stackedWidget->setCurrentIndex(1);
-    else if(clickedBtn->objectName() == "btn_Library")
+    else if(clickedButtonPtr->objectName() == "button_Library")
         ui->stackedWidget->setCurrentIndex(2);
-    else if(clickedBtn->objectName() == "btn_Settings")
+    else if(clickedButtonPtr->objectName() == "button_Settings")
         ui->stackedWidget->setCurrentIndex(3);
+}
+
+void CentralWidget::handlePlaylistsNaviButtonClick()
+{
+    refreshPlaylistsNaviButtonPtrs();
+
+    QPushButton *clickedButtonPtr = (QPushButton *)sender();
+
+    foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
+        if(playlistsNaviButtonPtr == clickedButtonPtr) {
+            playlistsNaviButtonPtr->setChecked(true);
+        } else {
+            playlistsNaviButtonPtr->setChecked(false);
+        }
+    }
 }
