@@ -28,5 +28,32 @@
     </qresource>
     <qresource prefix="/icons">
         <file>res/icons/logo.ico</file>
+        <file>res/icons/library_black.png</file>
+        <file>res/icons/play_black.png</file>
+        <file>res/icons/playlists_black.png</file>
+        <file>res/icons/settings_black.png</file>
+        <file>res/icons/statistics_black.png</file>
+        <file>res/icons/playing_next_black.png</file>
+        <file>res/icons/playing_pause_black.png</file>
+        <file>res/icons/playing_play_black.png</file>
+        <file>res/icons/playing_prev_black.png</file>
+        <file>res/icons/icon_2c2c2c/backward.png</file>
+        <file>res/icons/icon_2c2c2c/caret-right.png</file>
+        <file>res/icons/icon_2c2c2c/fast-backward.png</file>
+        <file>res/icons/icon_2c2c2c/fast-forward.png</file>
+        <file>res/icons/icon_2c2c2c/forward.png</file>
+        <file>res/icons/icon_2c2c2c/pause.png</file>
+        <file>res/icons/icon_8a8a8a/backward.png</file>
+        <file>res/icons/icon_8a8a8a/caret-right.png</file>
+        <file>res/icons/icon_8a8a8a/fast-backward.png</file>
+        <file>res/icons/icon_8a8a8a/fast-forward.png</file>
+        <file>res/icons/icon_8a8a8a/forward.png</file>
+        <file>res/icons/icon_8a8a8a/pause.png</file>
+        <file>res/icons/icon_cdcdcd/backward.png</file>
+        <file>res/icons/icon_cdcdcd/caret-right.png</file>
+        <file>res/icons/icon_cdcdcd/fast-backward.png</file>
+        <file>res/icons/icon_cdcdcd/fast-forward.png</file>
+        <file>res/icons/icon_cdcdcd/forward.png</file>
+        <file>res/icons/icon_cdcdcd/pause.png</file>
     </qresource>
 </RCC>

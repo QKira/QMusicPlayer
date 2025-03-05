@@ -48,7 +48,7 @@ void CentralWidget::initWidgetleftUI()
 void CentralWidget::initPagePlayingUI()
 {
     QPixmap pixmap{":/images/res/images/preview.jpg"};
-    pixmap.scaled(ui->label_Playing_DetailPic->size(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    pixmap.scaled(ui->label_Playing_DetailPic->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->label_Playing_DetailPic->setPixmap(pixmap);
     ui->label_Playing_DetailPic->setScaledContents(true);
     int imgW = pixmap.width();
@@ -133,8 +133,10 @@ void CentralWidget::handleNaviButtonClick()
         ui->stackedWidget->setCurrentIndex(1);
     else if(clickedButtonPtr->objectName() == "button_Library")
         ui->stackedWidget->setCurrentIndex(2);
-    else if(clickedButtonPtr->objectName() == "button_Settings")
+    else if(clickedButtonPtr->objectName() == "button_Statistics")
         ui->stackedWidget->setCurrentIndex(3);
+    else if(clickedButtonPtr->objectName() == "button_Settings")
+        ui->stackedWidget->setCurrentIndex(4);
 }
 
 void CentralWidget::handlePlaylistsNaviButtonClick()

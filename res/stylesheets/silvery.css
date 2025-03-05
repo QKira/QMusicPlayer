@@ -896,13 +896,25 @@ QWidget#widget_Playlists_BottomLeft QPushButton:hover {
 }
 
 QWidget#widget_Playlists_BottomLeft QPushButton:checked,
-QWidget#widget_Playlists_BottomLeft QPushButton:pressed{
+QWidget#widget_Playlists_BottomLeft QPushButton:pressed {
     color: #FFFFFF;
-/*    border-style: solid;*/
-/*    border-width: 2px 0px 2px 0px;*/
-/*    border-color: #00BB9E;*/
     background-color: #00BB9E;
 }
+
+/*QWidget#widget_Playing_TimeContainer QPushButton {
+    border: none;
+    background-color: #F5F5F5;
+}
+
+QWidget#widget_Playing_TimeContainer QPushButton:hover {
+    image: url(:/stylesheets/res/stylesheets/silvery/calendar_nextmonth.png);
+}
+
+QWidget#widget_Playing_TimeContainer QPushButton:checked,
+QWidget#widget_Playing_TimeContainer QPushButton:pressed {
+    image: url(:/stylesheets/res/stylesheets/silvery/calendar_nextmonth.png);
+}*/
+
 /* EXTRA END */
 
 
