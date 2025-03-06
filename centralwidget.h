@@ -5,6 +5,11 @@
 #include <array>
 #include <qlabel.h>
 #include <qpushbutton.h>
+#include <qtableview.h>
+#include <QStandardItemModel>
+#include <QFileDialog>
+#include "databasemanager.h"
+#include <QSqlQuery>
 
 namespace Ui {
 class CentralWidget;
@@ -24,8 +29,10 @@ private:
 //widget_Left
 private:
     QList<QPushButton *> naviButtonPtrs;
-    void refreshNaviButtonPtrs();
+    void updateNaviButtonPtrs();
     void initWidgetleftUI();
+private slots:
+    void handleNaviButtonClick();
 
 //Page_Playing
 private:
@@ -34,18 +41,35 @@ private:
 
 //Page_Playlists
 private:
+    QList<QPushButton *> playlistsNaviButtonPtrs;
+    void updatePlaylistsNaviButtonPtrs();
     std::array<QPushButton *, 100> vct_ButtonPtrs;
     void testAddButton();
-    QList<QPushButton *> playlistsNaviButtonPtrs;
-    void refreshPlaylistsNaviButtonPtrs();
     void initWidgetPlaylistsBottomLeftUI();
+private slots:
+    void handlePlaylistsNaviButtonClick();
+
+//Page_Library
+
+
+//Page_Statistics
+
+
+//Page_Settings
+private:
+    QTableView* tableView_PathMonitor;
+    QStandardItemModel standardItemModel_PathMonitor;
+    QPushButton button_PathMonitor_AddPath;
+    QPushButton button_PathMonitor_DeletePath;
+    void initPageSettings();
+private slots:
+    void handleSettingsPathMonitorButtonClick();
+
 
 protected:
     void paintEvent(QPaintEvent* event) override;
 
-private slots:
-    void handleNaviButtonClick();
-    void handlePlaylistsNaviButtonClick();
+
 };
 
 #endif // CENTRALWIDGET_H

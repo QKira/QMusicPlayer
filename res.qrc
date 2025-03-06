@@ -56,4 +56,7 @@
         <file>res/icons/icon_cdcdcd/forward.png</file>
         <file>res/icons/icon_cdcdcd/pause.png</file>
     </qresource>
+    <qresource prefix="/db">
+        <file>res/db/data.db</file>
+    </qresource>
 </RCC>
