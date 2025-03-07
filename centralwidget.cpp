@@ -4,6 +4,8 @@
 CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CentralWidget)
+    , dbm("Monitor", "QSQLITE", "D:/000_QtPro/QMusicPlayer/res/db/data.db")
+    , qry(dbm.database())
 {
     ui->setupUi(this);
     this->setProperty("form", true);
@@ -15,7 +17,7 @@ CentralWidget::CentralWidget(QWidget *parent)
     initWidgetPlaylistsBottomLeftUI();
     // testAddButton();
 
-    initPageSettings();
+    initPageSettingsUI();
 
 
     // QList<QObject *> objs = ui->page_Playing->findChildren<QObject *>();
@@ -144,7 +146,7 @@ void CentralWidget::handlePlaylistsNaviButtonClick()
 
 
 //Page_Settings
-void CentralWidget::initPageSettings()
+void CentralWidget::initPageSettingsUI()
 {
     tableView_PathMonitor = ui->tableView_PathMonitor;
     tableView_PathMonitor->setModel(&standardItemModel_PathMonitor);
@@ -153,9 +155,28 @@ void CentralWidget::initPageSettings()
     tableView_PathMonitor->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     tableView_PathMonitor->setSelectionMode(QAbstractItemView::SingleSelection);
     tableView_PathMonitor->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView_PathMonitor->setEditTriggers(QAbstractItemView::NoEditTriggers);
     // tableView_PathMonitor->show();
+    updatePathMonitorModelData();
     connect(ui->button_PathMonitor_AddPath, &QPushButton::clicked, this, &CentralWidget::handleSettingsPathMonitorButtonClick);
     connect(ui->button_PathMonitor_DeletePath, &QPushButton::clicked, this, &CentralWidget::handleSettingsPathMonitorButtonClick);
+    connect(ui->tableView_PathMonitor->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CentralWidget::handleTableViewPathMonitorChanged);
+}
+
+void CentralWidget::updatePathMonitorModelData()
+{
+    standardItemModel_PathMonitor.removeRows(0, standardItemModel_PathMonitor.rowCount());
+    sql =  QString("SELECT * FROM %1;").arg("path_monitor");
+    if (qry.exec(sql)) {
+        int cnt = 0;
+        while (qry.next()) {
+            // int path_id = qry.value(0).toInt();
+            QString path_value = qry.value(1).toString();
+            standardItemModel_PathMonitor.setItem(cnt++, 0, new QStandardItem(path_value));
+        }
+    } else {
+        qDebug() << "CentralWidget::updatePathMonitorModelData()->查询失败：" << qry.lastError().text();
+    }
 }
 
 void CentralWidget::handleSettingsPathMonitorButtonClick()
@@ -163,25 +184,61 @@ void CentralWidget::handleSettingsPathMonitorButtonClick()
     QPushButton *clickedButtonPtr = (QPushButton *)sender();
     if(clickedButtonPtr == ui->button_PathMonitor_AddPath)
     {
-        QString dirPath = QFileDialog::getExistingDirectory(nullptr, "选择音乐目录", QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        DatabaseManager dbm("Monitor", "QSQLITE", "D:/000_QtPro/QMusicPlayer/res/db/data.db");
-        if (!dirPath.isEmpty()) {
-            qDebug() << "选中的目录：" << dirPath;
+        QString pickPath = QFileDialog::getExistingDirectory(nullptr, "选择监控路径", QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        if (!pickPath.isEmpty()) {
+            qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->选中的路径：" << pickPath;
+            sql =  QString("SELECT * FROM %1 WHERE path_value = '%2';").arg("path_monitor").arg(pickPath);
+            if(qry.exec(sql)) {
+                if (qry.first()) {
+                    MainFrame::showMessageBoxError("此路径已存在！");
+                } else {
+                    qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->Q111\n";
+                    sql = QString("INSERT INTO %1 (path_value)"
+                                  "VALUES ('%2')").arg("path_monitor").arg(pickPath);
+                    if(!qry.exec(sql)) {
+                        qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << qry.lastError().text();
+                    }
+                }
+            } else {
+                qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << qry.lastError().text();
+            }
+        } else {
+            qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->未选择路径或路径为空！";
         }
-        QSqlQuery qry;
-
-
+        updatePathMonitorModelData();
+    } else {
+        QModelIndexList indexes = tableView_PathMonitor->selectionModel()->selectedIndexes();
+        if (!indexes.isEmpty()) {
+            QModelIndex index = indexes.first();
+            QString path = standardItemModel_PathMonitor.data(index, Qt::DisplayRole).toString();
+            // qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << path;
+            sql = QString("DELETE FROM %1 WHERE path_value = '%2'").arg("path_monitor").arg(path);
+            if(!qry.exec(sql)) {
+                qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << qry.lastError().text();
+            }
+        }
+        ui->button_PathMonitor_DeletePath->setEnabled(false);
+        tableView_PathMonitor->clearSelection();
+        updatePathMonitorModelData();
     }
-    else
-    {
+}
 
+void CentralWidget::handleTableViewPathMonitorChanged()
+{
+    QModelIndexList indexes = tableView_PathMonitor->selectionModel()->selectedIndexes();
+    if (!indexes.isEmpty()) {
+        ui->button_PathMonitor_DeletePath->setEnabled(true);
+        // QModelIndex index = indexes.first(); // 取第一个选中的单元格
+        // QString text = standardItemModel_PathMonitor.data(index, Qt::DisplayRole).toString();
+        // qDebug() << CentralWidget::handleTableViewPathMonitorChanged()-> << "选中内容：" << text;
     }
 }
 
 
+
 void CentralWidget::paintEvent(QPaintEvent *event)
 {
-//Page_Playing
+    //Page_Playing
     if (ui->widget_Playing_DetailBlock->width() > ui->widget_Playing_DetailBlock->height())
     {
         float fScaleH = ui->widget_Playing_DetailBlock->height();

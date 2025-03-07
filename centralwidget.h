@@ -26,6 +26,12 @@ public:
 private:
     Ui::CentralWidget *ui;
 
+//Database
+private:
+    DatabaseManager dbm;
+    QSqlQuery qry;
+    QString sql;
+
 //widget_Left
 private:
     QList<QPushButton *> naviButtonPtrs;
@@ -61,10 +67,11 @@ private:
     QStandardItemModel standardItemModel_PathMonitor;
     QPushButton button_PathMonitor_AddPath;
     QPushButton button_PathMonitor_DeletePath;
-    void initPageSettings();
+    void initPageSettingsUI();
+    void updatePathMonitorModelData();
 private slots:
     void handleSettingsPathMonitorButtonClick();
-
+    void handleTableViewPathMonitorChanged();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
