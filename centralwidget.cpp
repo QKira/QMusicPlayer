@@ -184,15 +184,15 @@ void CentralWidget::handleSettingsPathMonitorButtonClick()
     QPushButton *clickedButtonPtr = (QPushButton *)sender();
     if(clickedButtonPtr == ui->button_PathMonitor_AddPath)
     {
+        ui->button_PathMonitor_DeletePath->setEnabled(false);
+        tableView_PathMonitor->clearSelection();
         QString pickPath = QFileDialog::getExistingDirectory(nullptr, "选择监控路径", QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         if (!pickPath.isEmpty()) {
-            qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->选中的路径：" << pickPath;
             sql =  QString("SELECT * FROM %1 WHERE path_value = '%2';").arg("path_monitor").arg(pickPath);
             if(qry.exec(sql)) {
                 if (qry.first()) {
                     MainFrame::showMessageBoxError("此路径已存在！");
                 } else {
-                    qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->Q111\n";
                     sql = QString("INSERT INTO %1 (path_value)"
                                   "VALUES ('%2')").arg("path_monitor").arg(pickPath);
                     if(!qry.exec(sql)) {
