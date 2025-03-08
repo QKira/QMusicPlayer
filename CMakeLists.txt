@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql Multimedia)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql Multimedia)
 
 # SVG
 find_package(Qt6 REQUIRED COMPONENTS Svg)
@@ -18,6 +18,10 @@ find_package(Qt6 REQUIRED COMPONENTS Svg)
 # QSingleApplication
 find_library(QSINGLEAPPLICATION_LIBRARY qtsingleapplication PATHS "${CMAKE_SOURCE_DIR}/3rdparty")
 find_path(QSINGLEAPPLICATION_INCLUDE_DIR qtsingleapplication.h PATHS "${CMAKE_SOURCE_DIR}/3rdparty/include")
+
+# FFMPEG
+include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include)
+link_directories(${CMAKE_SOURCE_DIR}/3rdparty)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -35,6 +39,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         centralwidget.h centralwidget.cpp centralwidget.ui
         icon.rc
         databasemanager.h databasemanager.cpp
+        parsemusic.h parsemusic.cpp
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QMusicPlayer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -56,7 +63,7 @@ endif()
 
 target_include_directories(QMusicPlayer PRIVATE ${QSINGLEAPPLICATION_INCLUDE_DIR})
 
-target_link_libraries(QMusicPlayer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${QSINGLEAPPLICATION_LIBRARY} Qt6::Sql Qt6::Svg)
+target_link_libraries(QMusicPlayer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${QSINGLEAPPLICATION_LIBRARY} Qt6::Sql Qt6::Svg Qt6::Multimedia libavcodec.dll.a libavdevice.dll.a libavfilter.dll.a libavformat.dll.a libavutil.dll.a libswresample.dll.a libswscale.dll.a)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

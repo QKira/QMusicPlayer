@@ -11,9 +11,9 @@ DatabaseManager::DatabaseManager(const QString &connectionName, const QString &d
     }
 
     if (!m_db.open()) {
-        MainFrame::showMessageBoxError("Database connection failed: " + m_db.lastError().text());
+        qDebug() << "DatabaseManager::DatabaseManager(const QString &connectionName, const QString &driver, const QString &dbName)->" << m_db.lastError().text();
     } else {
-        qDebug() << "Database connected successfully.";
+        qDebug() << "DatabaseManager::DatabaseManager(const QString &connectionName, const QString &driver, const QString &dbName)->Database connected successfully.";
     }
 }
 
@@ -36,7 +36,7 @@ DatabaseManager &DatabaseManager::operator=(DatabaseManager &&other) noexcept {
 void DatabaseManager::close() {
     if (m_db.isOpen()) {
         m_db.close();
-        QSqlDatabase::removeDatabase(m_connectionName);
-        qDebug() << "Database connection closed.";
+        // QSqlDatabase::removeDatabase(m_connectionName);
+        qDebug() << "DatabaseManager::close()->Database connection closed.";
     }
 }

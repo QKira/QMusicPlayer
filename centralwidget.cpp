@@ -4,7 +4,7 @@
 CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CentralWidget)
-    , dbm("Monitor", "QSQLITE", "D:/000_QtPro/QMusicPlayer/res/db/data.db")
+    , dbm("default", "QSQLITE", "D:/000_QtPro/QMusicPlayer/res/db/data.db")
     , qry(dbm.database())
 {
     ui->setupUi(this);
@@ -179,6 +179,28 @@ void CentralWidget::updatePathMonitorModelData()
     }
 }
 
+void CentralWidget::scanDirectory(QString directory)
+{
+    QDir dir(directory);
+    if (!dir.exists()) {
+        qDebug() << "目录不存在:" << directory;
+        return;
+    }
+
+    // QThreadPool *pool = QThreadPool::globalInstance();
+    // pool->setMaxThreadCount(1);
+
+    QDirIterator qit(directory, QStringList() << "*.flac", QDir::Files, QDirIterator::Subdirectories);
+    int count = 0;
+    while (qit.hasNext()) {
+        QString filePath = qit.next();
+        // ParseMusic *pm = new ParseMusic(filePath);
+        // pool->start(pm);
+        count++;
+    }
+    qDebug() << "开始递归多线程扫描，共 " << count << " 个音乐文件!";
+}
+
 void CentralWidget::handleSettingsPathMonitorButtonClick()
 {
     QPushButton *clickedButtonPtr = (QPushButton *)sender();
@@ -206,6 +228,7 @@ void CentralWidget::handleSettingsPathMonitorButtonClick()
             qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->未选择路径或路径为空！";
         }
         updatePathMonitorModelData();
+        scanDirectory(pickPath);
     } else {
         QModelIndexList indexes = tableView_PathMonitor->selectionModel()->selectedIndexes();
         if (!indexes.isEmpty()) {

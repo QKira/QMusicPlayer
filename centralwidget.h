@@ -10,6 +10,10 @@
 #include <QFileDialog>
 #include "databasemanager.h"
 #include <QSqlQuery>
+#include <QThreadPool>
+#include <QRunnable>
+#include <QDirIterator>
+#include "parsemusic.h"
 
 namespace Ui {
 class CentralWidget;
@@ -69,6 +73,7 @@ private:
     QPushButton button_PathMonitor_DeletePath;
     void initPageSettingsUI();
     void updatePathMonitorModelData();
+    void scanDirectory(QString directory);
 private slots:
     void handleSettingsPathMonitorButtonClick();
     void handleTableViewPathMonitorChanged();
