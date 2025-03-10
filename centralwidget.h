@@ -10,10 +10,20 @@
 #include <QFileDialog>
 #include "databasemanager.h"
 #include <QSqlQuery>
-#include <QThreadPool>
-#include <QRunnable>
 #include <QDirIterator>
-#include "parsemusic.h"
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QProcess>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavutil/dict.h>
+#include <libavcodec/avcodec.h>
+}
 
 namespace Ui {
 class CentralWidget;
@@ -80,7 +90,6 @@ private slots:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
-
 
 };
 

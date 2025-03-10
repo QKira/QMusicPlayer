@@ -36,7 +36,7 @@ DatabaseManager &DatabaseManager::operator=(DatabaseManager &&other) noexcept {
 void DatabaseManager::close() {
     if (m_db.isOpen()) {
         m_db.close();
-        // QSqlDatabase::removeDatabase(m_connectionName);
+        QSqlDatabase::removeDatabase(m_connectionName);
         qDebug() << "DatabaseManager::close()->Database connection closed.";
     }
 }

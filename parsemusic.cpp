@@ -35,7 +35,7 @@ void ParseMusic::run()
 
 void ParseMusic::extractMetadata(qint64 song_id) {
     metadata["song_id"] = song_id;
-    metadata["song_name"] = "unknown";
+    metadata["song_title"] = "unknown";
     metadata["song_artist"] = "unknown";
     metadata["song_album"] = "unknown";
     metadata["song_lyrics"] = "No lyrics";
@@ -72,28 +72,6 @@ void ParseMusic::extractMetadata(qint64 song_id) {
         else if (key.contains("lyrics")) metadata["song_lyrics"] = value;
     }
 
-    bool hasCover = false;
-    for (unsigned int i = 0; i < formatContext->nb_streams; i++) {
-        AVStream *stream = formatContext->streams[i];
-        if (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) {
-            hasCover = true;
-            break;
-        }
-    }
-
-    //./ffmpeg -i "D:/LocalMusic/Jay Chou/安静 - 周杰伦.flac" -an -vcodec mjpeg -frames:v 1 -update 1 cover.jpg
-    if (hasCover) {
-        QString appDir = QCoreApplication::applicationDirPath();
-        std::string command = appDir.toStdString() + "/ffpmeg.exe -i \"" + filepath.toStdString() + "\" -an -vcodec mjpeg -frames:v 1 -update 1 \"cover_" + QString::number(song_id).toStdString() + ".jpg\"";
-        qDebug() << QString::fromStdString(command);
-        // int result = std::system(command.c_str());  // 执行命令
-
-        // if (result == 0) {
-        //     qDebug() << "封面提取成功！";
-        // } else {
-        //     qDebug() << "封面提取失败！";
-        // }
-    }
 
     avformat_close_input(&formatContext);
 }

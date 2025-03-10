@@ -61,6 +61,7 @@ else()
     endif()
 endif()
 
+# QSingleApplication
 target_include_directories(QMusicPlayer PRIVATE ${QSINGLEAPPLICATION_INCLUDE_DIR})
 
 target_link_libraries(QMusicPlayer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${QSINGLEAPPLICATION_LIBRARY} Qt6::Sql Qt6::Svg Qt6::Multimedia libavcodec.dll.a libavdevice.dll.a libavfilter.dll.a libavformat.dll.a libavutil.dll.a libswresample.dll.a libswscale.dll.a)

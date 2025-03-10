@@ -9,9 +9,7 @@
 #include <QFileInfo>
 #include <qthread.h>
 #include <QCoreApplication>
-#include <iostream>
-#include <cstdlib>
-#include <string>
+
 
 extern "C" {
 #include <libavformat/avformat.h>
