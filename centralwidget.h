@@ -14,7 +14,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QProcess>
-#include <QProgressDialog>
+#include <QVector>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -74,6 +74,7 @@ private slots:
 private:
     QTableView* tableView_Library;
     QStandardItemModel standardItemModel_Library;
+    // QVector<QProcess*> processList;
     void initPageLibraryUI();
     void updateLibraryModelData();
 
