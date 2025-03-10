@@ -13,7 +13,7 @@ DatabaseManager::DatabaseManager(const QString &connectionName, const QString &d
     if (!m_db.open()) {
         qDebug() << "DatabaseManager::DatabaseManager(const QString &connectionName, const QString &driver, const QString &dbName)->" << m_db.lastError().text();
     } else {
-        qDebug() << "DatabaseManager::DatabaseManager(const QString &connectionName, const QString &driver, const QString &dbName)->Database connected successfully.";
+        // qDebug() << "DatabaseManager::DatabaseManager(const QString &connectionName, const QString &driver, const QString &dbName)->Database connected successfully.";
     }
 }
 

@@ -17,6 +17,8 @@ CentralWidget::CentralWidget(QWidget *parent)
     initWidgetPlaylistsBottomLeftUI();
     // testAddButton();
 
+    initPageLibraryUI();
+
     initPageSettingsUI();
 
 
@@ -140,7 +142,51 @@ void CentralWidget::handlePlaylistsNaviButtonClick()
 }
 
 //Page_Library
+void CentralWidget::initPageLibraryUI()
+{
+    tableView_Library = ui->tableView_Library;
+    tableView_Library->setModel(&standardItemModel_Library);
+    standardItemModel_Library.setColumnCount(5);
+    standardItemModel_Library.setHeaderData(0, Qt::Horizontal, "Title");
+    standardItemModel_Library.setHeaderData(1, Qt::Horizontal, "Artist");
+    standardItemModel_Library.setHeaderData(2, Qt::Horizontal, "Album");
+    standardItemModel_Library.setHeaderData(3, Qt::Horizontal, "Size");
+    standardItemModel_Library.setHeaderData(4, Qt::Horizontal, "Duration");
+    tableView_Library->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    tableView_Library->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView_Library->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView_Library->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    updateLibraryModelData();
+}
 
+void CentralWidget::updateLibraryModelData()
+{
+    standardItemModel_Library.removeRows(0, standardItemModel_PathMonitor.rowCount());
+    sql =  QString("SELECT song_title, song_artist, song_album, song_size, song_duration FROM %1;").arg("songs");
+    if (qry.exec(sql)) {
+        int cnt = 0;
+        while (qry.next()) {
+            QString title = qry.value(0).toString();
+            QString artist = qry.value(1).toString();
+            QString album = qry.value(2).toString();
+            QString size = QString::number(qry.value(3).toFloat() / 1048576.0f, 'f', 1) + " MB";
+            long long totalSeconds = qry.value(4).toLongLong();
+            long long minutes = totalSeconds / 60;
+            long long seconds = totalSeconds % 60;
+            QString duration = QString("%1:%2")
+                                    .arg(minutes, 2, 10, QChar('0'))
+                                    .arg(seconds, 2, 10, QChar('0'));
+            standardItemModel_Library.setItem(cnt, 0, new QStandardItem(title));
+            standardItemModel_Library.setItem(cnt, 1, new QStandardItem(artist));
+            standardItemModel_Library.setItem(cnt, 2, new QStandardItem(album));
+            standardItemModel_Library.setItem(cnt, 3, new QStandardItem(size));
+            standardItemModel_Library.setItem(cnt, 4, new QStandardItem(duration));
+            cnt++;
+        }
+    } else {
+        qDebug() << "CentralWidget::updatePathMonitorModelData()->查询失败：" << qry.lastError().text();
+    }
+}
 
 //Page_Statistics
 
@@ -188,8 +234,8 @@ void CentralWidget::scanDirectory(QString directory)
     }
 
     QDirIterator qit(directory, QStringList() << "*.flac", QDir::Files, QDirIterator::Subdirectories);
-    // int count = 0;
-    QHash<QString, QVariant> metadata;
+    QSqlDatabase::database().transaction();
+
     while (qit.hasNext()) {
         QString filePath = qit.next();
 
@@ -205,6 +251,7 @@ void CentralWidget::scanDirectory(QString directory)
             song_id = qry.value(0).toInt() + 1;
         }
 
+        QHash<QString, QVariant> metadata;
         metadata.clear();
         metadata["song_id"] = song_id;
         metadata["song_title"] = "unknown";
@@ -212,7 +259,7 @@ void CentralWidget::scanDirectory(QString directory)
         metadata["song_album"] = "unknown";
         metadata["song_lyrics"] = "No lyrics";
         metadata["song_path"] = filePath;
-        metadata["cover_path"] = "./res/cover_default.jpg";
+        metadata["cover_path"] = QCoreApplication::applicationDirPath() + "/res/cover/cover_default.jpg";
         metadata["song_size"] = QFileInfo(filePath).size();
         metadata["song_duration"] = 0;
 
@@ -239,23 +286,32 @@ void CentralWidget::scanDirectory(QString directory)
             avformat_close_input(&formatContext);
         }
 
-        QProcess process;
-        QString program = "ffmpeg.exe";
+        QString coverPath = QCoreApplication::applicationDirPath() + QString("/res/cover/cover_%1.jpg").arg(song_id);
+        QDir().mkpath(QFileInfo(coverPath).absolutePath());
+
+        QString program = "C:/Users/KiraEx/Desktop/QMusicPlayer/res/ffmpeg_lib/bin/ffmpeg.exe";
         QStringList arguments;
         arguments << "-i" << filePath
                   << "-an" << "-vcodec" << "mjpeg"
                   << "-frames:v" << "1" << "-update" << "1"
-                  << "./res/cover/cover_" + QString::number(song_id) + ".jpg";
+                  << coverPath;
 
-        metadata["cover_path"] = "./res/cover/cover_" + QString::number(song_id) + ".jpg";
+        // QString commandLine = program;
+        // for (const QString &arg : arguments) {
+        //     commandLine += " " + arg;
+        // }
+        // qDebug() << "Executing command: " << commandLine;
 
-        process.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) {
-            args->flags |= CREATE_NO_WINDOW;
-        });
-        process.startDetached(program, arguments);
+        QProcess process;
+        process.start(program, arguments);
+        if (!process.waitForFinished()) {
+            qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "FFmpeg 执行失败";
+        } else {
+            metadata["cover_path"] = coverPath;
+        }
 
-        sql = QString("INSERT INTO %1 (song_title, song_artist, song_path, cover_path, song_lyrics, song_size, song_duration)"
-                      "VALUES ('%2', '%3', '%4', '%5', '%6', '%7', '%8')")
+        sql = QString("INSERT INTO %1 (song_title, song_artist, song_path, cover_path, song_lyrics, song_size, song_duration, song_album)"
+                      "VALUES ('%2', '%3', '%4', '%5', '%6', '%7', '%8', '%9')")
                     .arg("songs")
                     .arg(metadata.value("song_title").toString())
                     .arg(metadata.value("song_artist").toString())
@@ -263,23 +319,24 @@ void CentralWidget::scanDirectory(QString directory)
                     .arg(metadata.value("cover_path").toString())
                     .arg(metadata.value("song_lyrics").toString())
                     .arg(metadata.value("song_size").toLongLong())
-                    .arg(metadata.value("song_duration").toLongLong());
+                    .arg(metadata.value("song_duration").toLongLong())
+                    .arg(metadata.value("song_album").toString());
 
         if(!qry.exec(sql)) {
-            qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "Insert metadata error!";
+            qDebug() << "CentralWidget::scanDirectory(QString directory)->" << metadata.value("song_title").toString() << ": Insert metadata error!";
+            // qDebug() << metadata.value("song_id");
+            // qDebug() << metadata.value("song_title");
+            // qDebug() << metadata.value("song_artist");
+            // qDebug() << metadata.value("song_album");
+            // qDebug() << metadata.value("song_lyrics");
+            // qDebug() << metadata.value("song_path");
+            // qDebug() << metadata.value("cover_path");
+            // qDebug() << metadata.value("song_size");
+            // qDebug() << metadata.value("song_duration");
         }
-        // qDebug() << metadata.value("song_id");
-        // qDebug() << metadata.value("song_title");
-        // qDebug() << metadata.value("song_artist");
-        // qDebug() << metadata.value("song_album");
-        // qDebug() << metadata.value("song_lyrics");
-        // qDebug() << metadata.value("song_path");
-        // qDebug() << metadata.value("cover_path");
-        // qDebug() << metadata.value("song_size");
-        // qDebug() << metadata.value("song_duration");
-        // count++;
     }
     // qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "共 " << count << " 个音乐文件!";
+    QSqlDatabase::database().commit(); // 提交事务
 }
 
 void CentralWidget::handleSettingsPathMonitorButtonClick()
@@ -311,6 +368,7 @@ void CentralWidget::handleSettingsPathMonitorButtonClick()
             qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->未选择路径或路径为空！";
         }
         updatePathMonitorModelData();
+        updateLibraryModelData();
     } else {
         QModelIndexList indexes = tableView_PathMonitor->selectionModel()->selectedIndexes();
         if (!indexes.isEmpty()) {

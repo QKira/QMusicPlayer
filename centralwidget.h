@@ -14,6 +14,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QProcess>
+#include <QProgressDialog>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -70,7 +71,11 @@ private slots:
     void handlePlaylistsNaviButtonClick();
 
 //Page_Library
-
+private:
+    QTableView* tableView_Library;
+    QStandardItemModel standardItemModel_Library;
+    void initPageLibraryUI();
+    void updateLibraryModelData();
 
 //Page_Statistics
 

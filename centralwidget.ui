@@ -235,7 +235,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page_Playing">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -1144,7 +1144,7 @@ padding: 0;
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>93</width>
+                    <width>98</width>
                     <height>28</height>
                    </rect>
                   </property>
@@ -1693,7 +1693,7 @@ padding: 0;
           <number>10</number>
          </property>
          <item>
-          <widget class="QWidget" name="widget" native="true">
+          <widget class="QWidget" name="widget_Library_Top" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_15">
             <property name="spacing">
              <number>0</number>
@@ -1711,7 +1711,7 @@ padding: 0;
              <number>0</number>
             </property>
             <item>
-             <spacer name="horizontalSpacer">
+             <spacer name="hSpacer_Library">
               <property name="orientation">
                <enum>Qt::Orientation::Horizontal</enum>
               </property>
@@ -1724,10 +1724,10 @@ padding: 0;
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit"/>
+             <widget class="QLineEdit" name="lineEdit_Search"/>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="button_Search">
               <property name="text">
                <string>PushButton</string>
               </property>
@@ -1737,7 +1737,7 @@ padding: 0;
           </widget>
          </item>
          <item>
-          <widget class="QWidget" name="widget_2" native="true">
+          <widget class="QWidget" name="widget_Library_Bottom" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_13">
             <property name="leftMargin">
              <number>0</number>
@@ -1752,7 +1752,7 @@ padding: 0;
              <number>0</number>
             </property>
             <item>
-             <widget class="QTableView" name="tableView"/>
+             <widget class="QTableView" name="tableView_Library"/>
             </item>
            </layout>
           </widget>
@@ -1867,8 +1867,8 @@ padding: 0;
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>75</width>
-                     <height>150</height>
+                     <width>98</width>
+                     <height>75</height>
                     </rect>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_12">
