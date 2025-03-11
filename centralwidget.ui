@@ -1144,7 +1144,7 @@ padding: 0;
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
+                    <width>93</width>
                     <height>28</height>
                    </rect>
                   </property>
@@ -1696,7 +1696,7 @@ padding: 0;
           <widget class="QWidget" name="widget_Library_Top" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_15">
             <property name="spacing">
-             <number>0</number>
+             <number>5</number>
             </property>
             <property name="leftMargin">
              <number>0</number>
@@ -1711,6 +1711,72 @@ padding: 0;
              <number>0</number>
             </property>
             <item>
+             <widget class="QPushButton" name="button_Library_NewPL">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>创建新歌单</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="button_Library_Add2PL">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>添加至歌单</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="button_Library_DelSong">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>删除所选歌</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="hSpacer_Library">
               <property name="orientation">
                <enum>Qt::Orientation::Horizontal</enum>
@@ -1724,12 +1790,40 @@ padding: 0;
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_Search"/>
+             <widget class="QLineEdit" name="lineEdit_Search">
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>30</height>
+               </size>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="button_Search">
+              <property name="minimumSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
+              </property>
               <property name="text">
-               <string>PushButton</string>
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset theme="QIcon::ThemeIcon::EditFind"/>
               </property>
              </widget>
             </item>
@@ -1739,6 +1833,9 @@ padding: 0;
          <item>
           <widget class="QWidget" name="widget_Library_Bottom" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_13">
+            <property name="spacing">
+             <number>5</number>
+            </property>
             <property name="leftMargin">
              <number>0</number>
             </property>
@@ -1867,8 +1964,8 @@ padding: 0;
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>98</width>
-                     <height>75</height>
+                     <width>75</width>
+                     <height>150</height>
                     </rect>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_12">

@@ -152,41 +152,119 @@ void CentralWidget::initPageLibraryUI()
     standardItemModel_Library.setHeaderData(2, Qt::Horizontal, "Album");
     standardItemModel_Library.setHeaderData(3, Qt::Horizontal, "Size");
     standardItemModel_Library.setHeaderData(4, Qt::Horizontal, "Duration");
-    tableView_Library->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    tableView_Library->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView_Library->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    tableView_Library->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    tableView_Library->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    tableView_Library->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+    tableView_Library->horizontalHeader()->resizeSection(3, 100);
+    tableView_Library->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
+    tableView_Library->horizontalHeader()->resizeSection(4, 100);
+    tableView_Library->setSelectionMode(QAbstractItemView::ExtendedSelection);
     tableView_Library->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView_Library->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView_Library->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    // tableView_Library->verticalHeader()->setVisible(false);
+    ui->tableView_Library->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     updateLibraryModelData();
+
+    connect(tableView_Library->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CentralWidget::onSelectionChanged);
 }
 
 void CentralWidget::updateLibraryModelData()
 {
-    standardItemModel_Library.removeRows(0, standardItemModel_PathMonitor.rowCount());
-    sql =  QString("SELECT song_title, song_artist, song_album, song_size, song_duration FROM %1;").arg("songs");
-    if (qry.exec(sql)) {
+    standardItemModel_Library.removeRows(0, standardItemModel_Library.rowCount());
+    qry.prepare("SELECT song_id, song_title, song_artist, song_album, song_size, song_duration FROM songs");
+    if (qry.exec()) {
         int cnt = 0;
         while (qry.next()) {
-            QString title = qry.value(0).toString();
-            QString artist = qry.value(1).toString();
-            QString album = qry.value(2).toString();
-            QString size = QString::number(qry.value(3).toFloat() / 1048576.0f, 'f', 1) + " MB";
-            long long totalSeconds = qry.value(4).toLongLong();
+            qint64 song_id = qry.value(0).toLongLong();
+            QString title = qry.value(1).toString();
+            QString artist = qry.value(2).toString();
+            QString album = qry.value(3).toString();
+            QString size = QString::number(qry.value(4).toLongLong() / 1048576.0f, 'f', 1) + " MB";
+            long long totalSeconds = qry.value(5).toLongLong();
             long long minutes = totalSeconds / 60;
             long long seconds = totalSeconds % 60;
             QString duration = QString("%1:%2")
-                                    .arg(minutes, 2, 10, QChar('0'))
-                                    .arg(seconds, 2, 10, QChar('0'));
-            standardItemModel_Library.setItem(cnt, 0, new QStandardItem(title));
+                                   .arg(minutes, 2, 10, QChar('0'))
+                                   .arg(seconds, 2, 10, QChar('0'));
+            QStandardItem* idTitleItem = new QStandardItem(title);
+            idTitleItem->setData(song_id, Qt::UserRole);
+            standardItemModel_Library.setItem(cnt, 0, idTitleItem);
             standardItemModel_Library.setItem(cnt, 1, new QStandardItem(artist));
             standardItemModel_Library.setItem(cnt, 2, new QStandardItem(album));
-            standardItemModel_Library.setItem(cnt, 3, new QStandardItem(size));
-            standardItemModel_Library.setItem(cnt, 4, new QStandardItem(duration));
+            QStandardItem* sizeItem = new QStandardItem(size);
+            sizeItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_Library.setItem(cnt, 3, sizeItem);
+            QStandardItem* durationItem = new QStandardItem(duration);
+            durationItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_Library.setItem(cnt, 4, durationItem);
             cnt++;
         }
     } else {
         qDebug() << "CentralWidget::updatePathMonitorModelData()->查询失败：" << qry.lastError().text();
     }
 }
+
+void CentralWidget::on_lineEdit_Search_textChanged(const QString &arg1)
+{
+    if(arg1.isEmpty())
+    {
+        updateLibraryModelData();
+        return;
+    }
+
+    // qDebug() << arg1;
+
+    if (standardItemModel_Library.rowCount() > 0) {
+        standardItemModel_Library.removeRows(0, standardItemModel_Library.rowCount());
+    }
+
+    qry.prepare("SELECT song_id, song_title, song_artist, song_album, song_size, song_duration FROM songs WHERE song_title like ?");
+    qry.addBindValue("%" + arg1 + "%");
+    if (qry.exec()) {
+        int cnt = 0;
+        while (qry.next()) {
+            qint64 song_id = qry.value(0).toLongLong();
+            QString title = qry.value(1).toString();
+            QString artist = qry.value(2).toString();
+            QString album = qry.value(3).toString();
+            QString size = QString::number(qry.value(4).toLongLong() / 1048576.0f, 'f', 1) + " MB";
+            long long totalSeconds = qry.value(5).toLongLong();
+            long long minutes = totalSeconds / 60;
+            long long seconds = totalSeconds % 60;
+            QString duration = QString("%1:%2")
+                                   .arg(minutes, 2, 10, QChar('0'))
+                                   .arg(seconds, 2, 10, QChar('0'));
+            QStandardItem* idTitleItem = new QStandardItem(title);
+            idTitleItem->setData(song_id, Qt::UserRole);
+            standardItemModel_Library.setItem(cnt, 0, idTitleItem);
+            standardItemModel_Library.setItem(cnt, 1, new QStandardItem(artist));
+            standardItemModel_Library.setItem(cnt, 2, new QStandardItem(album));
+            QStandardItem* sizeItem = new QStandardItem(size);
+            sizeItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_Library.setItem(cnt, 3, sizeItem);
+            QStandardItem* durationItem = new QStandardItem(duration);
+            durationItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_Library.setItem(cnt, 4, durationItem);
+            cnt++;
+        }
+    } else {
+        qDebug() << "CentralWidget::on_lineEdit_Search_textChanged(const QString &arg1)->查询失败：" << qry.lastError().text();
+    }
+}
+
+void CentralWidget::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    Q_UNUSED(selected)
+    Q_UNUSED(deselected)
+    bool hasSelection = tableView_Library->selectionModel()->hasSelection();
+    ui->button_Library_NewPL->setEnabled(hasSelection);
+    ui->button_Library_Add2PL->setEnabled(hasSelection);
+    ui->button_Library_DelSong->setEnabled(hasSelection);
+}
+
 
 //Page_Statistics
 
@@ -212,8 +290,8 @@ void CentralWidget::initPageSettingsUI()
 void CentralWidget::updatePathMonitorModelData()
 {
     standardItemModel_PathMonitor.removeRows(0, standardItemModel_PathMonitor.rowCount());
-    sql =  QString("SELECT * FROM %1;").arg("path_monitor");
-    if (qry.exec(sql)) {
+    qry.prepare("SELECT * FROM path_monitor");
+    if (qry.exec()) {
         int cnt = 0;
         while (qry.next()) {
             // int path_id = qry.value(0).toInt();
@@ -239,8 +317,9 @@ void CentralWidget::scanDirectory(QString directory)
     while (qit.hasNext()) {
         QString filePath = qit.next();
 
-        sql = QString("SELECT * FROM %1 WHERE song_path = '%2'").arg("songs").arg(filePath);
-        if (qry.exec(sql) && qry.first()) {
+        qry.prepare("SELECT * FROM songs WHERE song_path = ?");
+        qry.addBindValue(filePath);
+        if (qry.exec() && qry.first()) {
             qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "歌曲已存在";
             continue;
         }
@@ -286,47 +365,26 @@ void CentralWidget::scanDirectory(QString directory)
             avformat_close_input(&formatContext);
         }
 
-        QString coverPath = QCoreApplication::applicationDirPath() + QString("/res/cover/cover_%1.jpg").arg(song_id);
+        // 使用 extractCoverFromAudio 提取封面图片
+        QString coverPath = QCoreApplication::applicationDirPath() +
+                            QString("/res/cover/cover_%1.jpg").arg(song_id);
         QDir().mkpath(QFileInfo(coverPath).absolutePath());
-        QString program = "C:/Users/KiraEx/Desktop/QMusicPlayer/res/ffmpeg_lib/bin/ffmpeg.exe";
-        QStringList arguments;
-        arguments << "-i" << filePath
-                  << "-an" << "-vcodec" << "mjpeg"
-                  << "-frames:v" << "1" << "-update" << "1"
-                  << coverPath;
-
-        // QString commandLine = program;
-        // for (const QString &arg : arguments) {
-        //     commandLine += " " + arg;
-        // }
-        // qDebug() << "Executing command: " << commandLine;
-
-        QProcess *process = new QProcess(this);
-        // processList.append(process);
-        connect(process, &QProcess::finished, process, &QProcess::deleteLater);
-        process->start(program, arguments);
-        if (!process->waitForFinished()) {
-            qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "FFmpeg 执行失败";
-        }
-
-        if (QFile::exists(coverPath)) {
+        if (extractCover(filePath, coverPath) && QFile::exists(coverPath)) {
             metadata["cover_path"] = coverPath;
         }
 
-        sql = QString("INSERT INTO %1 (song_title, song_artist, song_path, cover_path, song_lyrics, song_size, song_duration, song_album)"
-                      "VALUES ('%2', '%3', '%4', '%5', '%6', '%7', '%8', '%9')")
-                    .arg("songs")
-                    .arg(metadata.value("song_title").toString())
-                    .arg(metadata.value("song_artist").toString())
-                    .arg(metadata.value("song_path").toString())
-                    .arg(metadata.value("cover_path").toString())
-                    .arg(metadata.value("song_lyrics").toString())
-                    .arg(metadata.value("song_size").toLongLong())
-                    .arg(metadata.value("song_duration").toLongLong())
-                    .arg(metadata.value("song_album").toString());
-
-        if(!qry.exec(sql)) {
-            qDebug() << "CentralWidget::scanDirectory(QString directory)->" << metadata.value("song_title").toString() << ": Insert metadata error!";
+        qry.prepare("INSERT INTO songs (song_title, song_artist, song_path, cover_path, song_lyrics, song_size, song_duration, song_album)"
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        qry.addBindValue(metadata.value("song_title").toString());
+        qry.addBindValue(metadata.value("song_artist").toString());
+        qry.addBindValue(metadata.value("song_path").toString());
+        qry.addBindValue(metadata.value("cover_path").toString());
+        qry.addBindValue(metadata.value("song_lyrics").toString());
+        qry.addBindValue(metadata.value("song_size").toLongLong());
+        qry.addBindValue(metadata.value("song_duration").toLongLong());
+        qry.addBindValue(metadata.value("song_album").toString());
+        if(!qry.exec()) {
+            qDebug() << "CentralWidget::scanDirectory(QString directory)->" << metadata.value("song_title").toString() << ": Insert metadata error!" << qry.lastError().text();
             // qDebug() << metadata.value("song_id");
             // qDebug() << metadata.value("song_title");
             // qDebug() << metadata.value("song_artist");
@@ -347,148 +405,220 @@ void CentralWidget::scanDirectory(QString directory)
     QSqlDatabase::database().commit();
 }
 
-// void CentralWidget::scanDirectory(QString directory)
-// {
-//     QDir dir(directory);
-//     if (!dir.exists()) {
-//         qDebug() << "目录不存在:" << directory;
-//         return;
-//     }
+bool CentralWidget::extractCover(const QString &audioFilePath, const QString &outputPath)
+{
+    // 打开输入文件
+    AVFormatContext *formatContext = nullptr;
+    QByteArray filePathUtf8 = audioFilePath.toUtf8();
 
-//     QDirIterator qit(directory, QStringList() << "*.flac", QDir::Files, QDirIterator::Subdirectories);
+    if (avformat_open_input(&formatContext, filePathUtf8.constData(), nullptr, nullptr) != 0) {
+        qDebug() << "无法打开音频文件:" << audioFilePath;
+        return false;
+    }
 
-//     // 获取总文件数
-//     QStringList fileList;
-//     while (qit.hasNext()) {
-//         fileList.append(qit.next());
-//     }
-//     int totalFiles = fileList.size();
-//     if (totalFiles == 0) {
-//         qDebug() << "没有找到 FLAC 文件";
-//         return;
-//     }
+    // 读取流信息
+    if (avformat_find_stream_info(formatContext, nullptr) < 0) {
+        qDebug() << "无法获取流信息";
+        avformat_close_input(&formatContext);
+        return false;
+    }
 
-//     // 创建进度对话框
-//     QProgressDialog progress("正在扫描文件...", "取消", 0, totalFiles, this);
-//     progress.setWindowModality(Qt::ApplicationModal);  // 模态窗口
-//     progress.setMinimumDuration(0);  // 立即显示
-//     progress.setCancelButton(nullptr);  // 禁用取消按钮
-//     progress.setValue(0);
+    // 查找封面图片流
+    int streamIndex = -1;
+    for (unsigned int i = 0; i < formatContext->nb_streams; i++) {
+        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO &&
+            (formatContext->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
+            streamIndex = i;
+            break;
+        }
+    }
 
-//     QSqlDatabase::database().transaction();
+    // 如果找不到封面流，尝试直接从元数据中查找
+    if (streamIndex == -1) {
+        bool found = false;
+        AVDictionaryEntry *tag = nullptr;
 
-//     for (int i = 0; i < totalFiles; ++i) {
-//         QString filePath = fileList[i];
+        // 查找包含图片的元数据标签
+        while ((tag = av_dict_get(formatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+            QString key = QString::fromUtf8(tag->key).toLower();
 
-//         // 更新进度条
-//         progress.setValue(i + 1);
-//         QApplication::processEvents();  // 处理事件，防止 UI 卡死
+            // 常见的封面标签
+            if (key == "cover" || key == "picture" || key == "artwork" || key == "albumart") {
+                // 直接提取二进制数据
+                QByteArray coverData(tag->value, tag->value ? strlen(tag->value) : 0);
 
-//         if (progress.wasCanceled()) {
-//             break;
-//         }
+                if (!coverData.isEmpty()) {
+                    QImage image;
+                    if (image.loadFromData(coverData)) {
+                        found = image.save(outputPath, "JPEG");
+                        break;
+                    }
+                }
+            }
+        }
 
-//         sql = QString("SELECT * FROM %1 WHERE song_path = '%2'").arg("songs").arg(filePath);
-//         if (qry.exec(sql) && qry.first()) {
-//             qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "歌曲已存在";
-//             continue;
-//         }
+        avformat_close_input(&formatContext);
+        return found;
+    }
 
-//         qint64 song_id = 1;
-//         qry.prepare("SELECT MAX(song_id) FROM songs");
-//         if (qry.exec() && qry.first() && !qry.value(0).isNull()) {
-//             song_id = qry.value(0).toInt() + 1;
-//         }
+    // 正常的封面流处理
+    // AVPacket packet;
+    // av_init_packet(&packet);
+    // packet.data = nullptr;
+    // packet.size = 0;
 
-//         QHash<QString, QVariant> metadata;
-//         metadata.clear();
-//         metadata["song_id"] = song_id;
-//         metadata["song_title"] = "unknown";
-//         metadata["song_artist"] = "unknown";
-//         metadata["song_album"] = "unknown";
-//         metadata["song_lyrics"] = "No lyrics";
-//         metadata["song_path"] = filePath;
-//         metadata["cover_path"] = QCoreApplication::applicationDirPath() + "/res/cover/cover_default.jpg";
-//         metadata["song_size"] = QFileInfo(filePath).size();
-//         metadata["song_duration"] = 0;
+    AVPacket *packet = av_packet_alloc();
+    if (!packet) {
+        qDebug() << "无法分配 AVPacket";
+        avformat_close_input(&formatContext);
+        return false;
+    }
 
+    // 获取封面数据包
+    if (av_read_frame(formatContext, packet) >= 0 && packet->stream_index == streamIndex) {
+        // 使用attached_pic，它直接包含了完整的图片数据
+        if (formatContext->streams[streamIndex]->disposition & AV_DISPOSITION_ATTACHED_PIC) {
+            QImage image;
 
-//         QByteArray byteArray = filePath.toUtf8();
-//         AVFormatContext *formatContext = nullptr;
-//         if (avformat_open_input(&formatContext, byteArray.constData(), nullptr, nullptr) != 0) {
-//             qDebug() << "Failed to open FLAC file";
-//         }
+            // 尝试用Qt直接加载图片数据
+            if (image.loadFromData(packet->data, packet->size)) {
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return image.save(outputPath, "JPEG");
+            }
 
-//         if (formatContext) {
-//             if (avformat_find_stream_info(formatContext, nullptr) >= 0) {
-//                 metadata["song_duration"] = formatContext->duration / AV_TIME_BASE;
-//                 AVDictionaryEntry *tag = nullptr;
-//                 while ((tag = av_dict_get(formatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
-//                     QString key = QString::fromUtf8(tag->key).toLower();
-//                     QString value = QString::fromUtf8(tag->value);
-//                     if (key == "title") metadata["song_title"] = value;
-//                     else if (key == "artist") metadata["song_artist"] = value;
-//                     else if (key == "album") metadata["song_album"] = value;
-//                     else if (key.contains("lyrics")) metadata["song_lyrics"] = value;
-//                 }
-//             }
-//             avformat_close_input(&formatContext);
-//         }
+            // 如果直接加载失败，则使用AVCodec解码
+            AVCodecContext *codecContext = nullptr;
+            const AVCodec *codec = nullptr;
 
-//         QString coverPath = QCoreApplication::applicationDirPath() + QString("/res/cover/cover_%1.jpg").arg(song_id);
-//         QDir().mkpath(QFileInfo(coverPath).absolutePath());
+            // 获取解码器
+            codec = avcodec_find_decoder(formatContext->streams[streamIndex]->codecpar->codec_id);
+            if (!codec) {
+                qDebug() << "无法找到适合的解码器";
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
 
-//         QString program = "C:/Users/KiraEx/Desktop/QMusicPlayer/res/ffmpeg_lib/bin/ffmpeg.exe";
-//         QStringList arguments;
-//         arguments << "-i" << filePath
-//                   << "-an" << "-vcodec" << "mjpeg"
-//                   << "-frames:v" << "1" << "-update" << "1"
-//                   << coverPath;
+            // 分配并初始化解码器上下文
+            codecContext = avcodec_alloc_context3(codec);
+            if (!codecContext) {
+                qDebug() << "无法分配解码器上下文";
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
 
-//         // QString commandLine = program;
-//         // for (const QString &arg : arguments) {
-//         //     commandLine += " " + arg;
-//         // }
-//         // qDebug() << "Executing command: " << commandLine;
+            // 复制编解码参数到上下文
+            if (avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar) < 0) {
+                qDebug() << "无法复制编解码参数";
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
 
-//         QProcess process;
-//         process.start(program, arguments);
-//         if (!process.waitForFinished()) {
-//             qDebug() << "CentralWidget::scanDirectory(QString directory)->" << "FFmpeg 执行失败";
-//         } else {
-//             metadata["cover_path"] = coverPath;
-//         }
+            // 打开解码器
+            if (avcodec_open2(codecContext, codec, nullptr) < 0) {
+                qDebug() << "无法打开解码器";
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
 
-//         sql = QString("INSERT INTO %1 (song_title, song_artist, song_path, cover_path, song_lyrics, song_size, song_duration, song_album)"
-//                       "VALUES ('%2', '%3', '%4', '%5', '%6', '%7', '%8', '%9')")
-//                     .arg("songs")
-//                     .arg(metadata.value("song_title").toString())
-//                     .arg(metadata.value("song_artist").toString())
-//                     .arg(metadata.value("song_path").toString())
-//                     .arg(metadata.value("cover_path").toString())
-//                     .arg(metadata.value("song_lyrics").toString())
-//                     .arg(metadata.value("song_size").toLongLong())
-//                     .arg(metadata.value("song_duration").toLongLong())
-//                     .arg(metadata.value("song_album").toString());
+            // 解码帧
+            AVFrame *frame = av_frame_alloc();
+            if (!frame) {
+                qDebug() << "无法分配帧";
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
 
-//         if(!qry.exec(sql)) {
-//             qDebug() << "CentralWidget::scanDirectory(QString directory)->" << metadata.value("song_title").toString() << ": Insert metadata error!";
-//             // qDebug() << metadata.value("song_id");
-//             // qDebug() << metadata.value("song_title");
-//             // qDebug() << metadata.value("song_artist");
-//             // qDebug() << metadata.value("song_album");
-//             // qDebug() << metadata.value("song_lyrics");
-//             // qDebug() << metadata.value("song_path");
-//             // qDebug() << metadata.value("cover_path");
-//             // qDebug() << metadata.value("song_size");
-//             // qDebug() << metadata.value("song_duration");
-//         }
-//     }
+            int ret = avcodec_send_packet(codecContext, packet);
+            if (ret < 0) {
+                qDebug() << "发送数据包到解码器失败";
+                av_frame_free(&frame);
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
 
-//     QSqlDatabase::database().commit();
-//     progress.setValue(totalFiles);  // 100%
-//     qDebug() << "扫描完成!";
-// }
+            ret = avcodec_receive_frame(codecContext, frame);
+            if (ret < 0) {
+                qDebug() << "无法从解码器接收帧";
+                av_frame_free(&frame);
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
+
+            // 转换为RGB格式
+            SwsContext *swsContext = sws_getContext(
+                frame->width, frame->height, (AVPixelFormat)frame->format,
+                frame->width, frame->height, AV_PIX_FMT_RGB24,
+                SWS_BILINEAR, nullptr, nullptr, nullptr
+                );
+
+            if (!swsContext) {
+                qDebug() << "无法创建图像转换上下文";
+                av_frame_free(&frame);
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
+
+            // 为RGB数据分配空间
+            uint8_t *rgbData[4] = {nullptr};
+            int rgbLinesize[4] = {0};
+
+            if (av_image_alloc(rgbData, rgbLinesize, frame->width, frame->height, AV_PIX_FMT_RGB24, 1) < 0) {
+                qDebug() << "无法分配RGB图像缓冲区";
+                sws_freeContext(swsContext);
+                av_frame_free(&frame);
+                avcodec_free_context(&codecContext);
+                av_packet_unref(packet);
+                avformat_close_input(&formatContext);
+                return false;
+            }
+
+            // 转换为RGB
+            sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, rgbData, rgbLinesize);
+
+            // 创建QImage
+            QImage rgbImage(frame->width, frame->height, QImage::Format_RGB888);
+
+            // 复制RGB数据到QImage
+            for (int y = 0; y < frame->height; y++) {
+                memcpy(rgbImage.scanLine(y), rgbData[0] + y * rgbLinesize[0], rgbLinesize[0]);
+            }
+
+            // 保存为JPEG文件
+            bool result = rgbImage.save(outputPath, "JPEG");
+
+            // 清理资源
+            av_freep(&rgbData[0]);
+            sws_freeContext(swsContext);
+            av_frame_free(&frame);
+            avcodec_free_context(&codecContext);
+            av_packet_unref(packet);
+            avformat_close_input(&formatContext);
+
+            return result;
+        }
+    }
+
+    // 清理资源
+    av_packet_unref(packet);
+    avformat_close_input(&formatContext);
+
+    return false;
+}
 
 void CentralWidget::handleSettingsPathMonitorButtonClick()
 {
@@ -499,14 +629,15 @@ void CentralWidget::handleSettingsPathMonitorButtonClick()
         tableView_PathMonitor->clearSelection();
         QString pickPath = QFileDialog::getExistingDirectory(nullptr, "选择监控路径", QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         if (!pickPath.isEmpty()) {
-            sql =  QString("SELECT * FROM %1 WHERE path_value = '%2';").arg("path_monitor").arg(pickPath);
-            if(qry.exec(sql)) {
+            qry.prepare("SELECT * FROM path_monitor WHERE path_value = ?");
+            qry.addBindValue(pickPath);
+            if(qry.exec()) {
                 if (qry.first()) {
                     MainFrame::showMessageBoxError("此路径已存在！");
                 } else {
-                    sql = QString("INSERT INTO %1 (path_value)"
-                                  "VALUES ('%2')").arg("path_monitor").arg(pickPath);
-                    if(qry.exec(sql)) {
+                    qry.prepare("INSERT INTO path_monitor (path_value) VALUES (?)");
+                    qry.addBindValue(pickPath);
+                    if(qry.exec()) {
                         scanDirectory(pickPath);
                     } else {
                         qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << qry.lastError().text();
@@ -526,8 +657,9 @@ void CentralWidget::handleSettingsPathMonitorButtonClick()
             QModelIndex index = indexes.first();
             QString path = standardItemModel_PathMonitor.data(index, Qt::DisplayRole).toString();
             // qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << path;
-            sql = QString("DELETE FROM %1 WHERE path_value = '%2'").arg("path_monitor").arg(path);
-            if(!qry.exec(sql)) {
+            qry.prepare("DELETE FROM path_monitor WHERE path_value = ?");
+            qry.addBindValue(path);
+            if(!qry.exec()) {
                 qDebug() << "CentralWidget::handleSettingsPathMonitorButtonClick()->" << qry.lastError().text();
             }
         }
@@ -567,3 +699,5 @@ void CentralWidget::paintEvent(QPaintEvent *event)
         ui->label_Playing_DetailPic->move(0, 0);
     }
 }
+
+

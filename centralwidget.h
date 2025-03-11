@@ -13,17 +13,16 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QCoreApplication>
-#include <QProcess>
 #include <QVector>
-
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
+#include <QFile>
+#include <QImage>
+#include <QBuffer>
 
 extern "C" {
 #include <libavformat/avformat.h>
-#include <libavutil/dict.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
 }
 
 namespace Ui {
@@ -77,6 +76,9 @@ private:
     // QVector<QProcess*> processList;
     void initPageLibraryUI();
     void updateLibraryModelData();
+private slots:
+    void on_lineEdit_Search_textChanged(const QString &arg1);
+    void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 //Page_Statistics
 
@@ -90,9 +92,11 @@ private:
     void initPageSettingsUI();
     void updatePathMonitorModelData();
     void scanDirectory(QString directory);
+    bool extractCover(const QString &audioFilePath, const QString &outputPath);
 private slots:
     void handleSettingsPathMonitorButtonClick();
     void handleTableViewPathMonitorChanged();
+
 
 protected:
     void paintEvent(QPaintEvent* event) override;
