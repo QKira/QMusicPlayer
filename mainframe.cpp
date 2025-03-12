@@ -1084,7 +1084,7 @@ void QMFInputBox::handleBtnOkClick()
         value = this->cboxValue->currentText();
     }
 
-    int ret =  MainFrame::showMessageBoxQuestion("请确定客户名字是否正确：" + value);//*
+    int ret =  MainFrame::showMessageBoxQuestion("请确定输入是否正确：" + value);//*
     if(ret == QDialog::Accepted)
     {
         done(Accepted);

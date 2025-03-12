@@ -20,18 +20,35 @@ CentralWidget::CentralWidget(QWidget *parent)
     initPageLibraryUI();
 
     initPageSettingsUI();
-
-
-    // QList<QObject *> objs = ui->page_Playing->findChildren<QObject *>();
-    // foreach (QObject *obj, objs) {
-    //     qDebug() << obj->objectName();
-    // }
 }
 
 CentralWidget::~CentralWidget()
 {
     delete ui;
 }
+
+// //Mask
+// void CentralWidget::initMask()
+// {
+//     widget_Mask = new QWidget(this);
+//     widget_Mask->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
+//     widget_Mask->hide();
+//     widget_Mask->setWindowOpacity(0.8);
+//     widget_Mask->setStyleSheet("background-color:black");
+//     widget_Mask->setFixedSize(this->width(), this->height() - 26);
+// }
+
+// void CentralWidget::openMask()
+// {
+//     widget_Mask->setFixedSize(this->width(), this->height() - 26);
+//     widget_Mask->move(this->mapToGlobal(this->pos()));
+//     widget_Mask->show();
+// }
+
+// void CentralWidget::closeMask()
+// {
+//     widget_Mask->hide();
+// }
 
 //widget_Left
 void CentralWidget::updateNaviButtonPtrs()
@@ -169,6 +186,9 @@ void CentralWidget::initPageLibraryUI()
     updateLibraryModelData();
 
     connect(tableView_Library->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CentralWidget::onSelectionChanged);
+    connect(ui->button_Library_NewPL, &QPushButton::clicked, this, &CentralWidget::handleButtonLibraryNewPLClick);
+    connect(ui->button_Library_Add2PL, &QPushButton::clicked, this, &CentralWidget::handleButtonLibraryAdd2PLClick);
+    connect(ui->button_Library_DelSong, &QPushButton::clicked, this, &CentralWidget::handleButtonLibraryDelSongClick);
 }
 
 void CentralWidget::updateLibraryModelData()
@@ -259,10 +279,79 @@ void CentralWidget::onSelectionChanged(const QItemSelection &selected, const QIt
 {
     Q_UNUSED(selected)
     Q_UNUSED(deselected)
+
     bool hasSelection = tableView_Library->selectionModel()->hasSelection();
     ui->button_Library_NewPL->setEnabled(hasSelection);
     ui->button_Library_Add2PL->setEnabled(hasSelection);
     ui->button_Library_DelSong->setEnabled(hasSelection);
+}
+
+void CentralWidget::handleButtonLibraryNewPLClick()
+{
+    bool ok = false;
+    QString newPLName =  MainFrame::showInputBox(ok, "请输入歌单名称");
+    if(ok && !newPLName.isEmpty())
+    {
+        // QSqlDatabase::database().transaction();
+        // qry.prepare("SELECT * FROM playlists WHERE pl_name = ?");
+        // qry.addBindValue(newPLName);
+        // if (qry.exec() && qry.first()) {
+        //     qDebug() << "CentralWidget::handleButtonLibraryNewPLClick()->" << "歌单已存在";
+        //     return;
+        // }
+
+        // qint64 pl_id = 1;
+        // qry.prepare("SELECT seq FROM sqlite_sequence WHERE name = playlists");
+        // if (qry.exec() && qry.first() && !qry.value(0).isNull()) {
+        //     pl_id = qry.value(0).toLongLong() + 1;
+        // }
+
+
+        // qry.prepare("INSERT INTO playlists (pl_name) VALUES (?)");
+        // qry.addBindValue(newPLName);
+        // if(!qry.exec()) {
+        //     qDebug() << "CentralWidget::handleButtonLibraryNewPLClick()->" << "Insert " << newPLName << " to playlists error!" << qry.lastError().text();
+        // }
+
+        // QString tableName = QString("playlist_%1").arg(pl_id);
+        // QString createTableSQL = QString(
+        //                              "CREATE TABLE [%1] ("
+        //                              "[song_index] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, "
+        //                              "[song_id] INTEGER NOT NULL UNIQUE);"
+        //                              ).arg(tableName);
+
+        // qry.prepare(createTableSQL);
+        // if(!qry.exec()) {
+        //     qDebug() << "CentralWidget::handleButtonLibraryNewPLClick()->" << "Create table" << tableName << " error!" << qry.lastError().text();
+        // }
+
+        QItemSelectionModel *selectionModel = tableView_Library->selectionModel();
+        QModelIndexList selectedIndexes = selectionModel->selectedRows();
+
+        for (const QModelIndex &index : selectedIndexes) {
+            int row = index.row();
+            QVariant songIdData = standardItemModel_Library.item(row, 0)->data(Qt::UserRole);
+            if (songIdData.isValid()) {
+                qint64 song_id = songIdData.toLongLong();
+                qDebug() << "选中的行:" << row << " song_id:" << song_id;
+                //先查询此歌曲id是否出现在此歌单中
+                //再试着插入此歌进此歌单
+            }
+        }
+
+
+        // QSqlDatabase::database().commit();
+    }
+}
+
+void CentralWidget::handleButtonLibraryAdd2PLClick()
+{
+
+}
+
+void CentralWidget::handleButtonLibraryDelSongClick()
+{
+
 }
 
 
@@ -325,9 +414,9 @@ void CentralWidget::scanDirectory(QString directory)
         }
 
         qint64 song_id = 1;
-        qry.prepare("SELECT MAX(song_id) FROM songs");
+        qry.prepare("SELECT seq FROM sqlite_sequence WHERE name = songs");
         if (qry.exec() && qry.first() && !qry.value(0).isNull()) {
-            song_id = qry.value(0).toInt() + 1;
+            song_id = qry.value(0).toLongLong() + 1;
         }
 
         QHash<QString, QVariant> metadata;

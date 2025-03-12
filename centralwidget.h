@@ -36,9 +36,15 @@ class CentralWidget : public QWidget
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget();
-
 private:
     Ui::CentralWidget *ui;
+
+// //Mask
+// private:
+//     QWidget* widget_Mask;
+//     void initMask();
+//     void openMask();
+//     void closeMask();
 
 //Database
 private:
@@ -79,7 +85,9 @@ private:
 private slots:
     void on_lineEdit_Search_textChanged(const QString &arg1);
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-
+    void handleButtonLibraryNewPLClick();
+    void handleButtonLibraryAdd2PLClick();
+    void handleButtonLibraryDelSongClick();
 //Page_Statistics
 
 
