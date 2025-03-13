@@ -67,11 +67,9 @@ private:
 
 //Page_Playlists
 private:
-    QList<QPushButton *> playlistsNaviButtonPtrs;
-    void updatePlaylistsNaviButtonPtrs();
-    // std::array<QPushButton *, 100> vct_ButtonPtrs;
-    // void testAddButton();
-    void initWidgetPlaylistsLeftUI();
+    // QList<QPushButton *> playlistsNaviButtonPtrs;
+    // void updatePlaylistsNaviButtonPtrs();
+    // void initWidgetPlaylistsLeftUI();
     QTableView* tableView_Playlists;
     QStandardItemModel standardItemModel_Playlists;
     void initPagePlaylistsUI();
@@ -82,7 +80,6 @@ private slots:
 private:
     QTableView* tableView_Library;
     QStandardItemModel standardItemModel_Library;
-    // QVector<QProcess*> processList;
     void initPageLibraryUI();
     void updateLibraryModelData();
 private slots:

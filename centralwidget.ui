@@ -1001,6 +1001,12 @@ padding: 0;
                      <property name="text">
                       <string>当前列表</string>
                      </property>
+                     <property name="checkable">
+                      <bool>false</bool>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
                     </widget>
                    </item>
                    <item>

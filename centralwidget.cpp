@@ -14,8 +14,8 @@ CentralWidget::CentralWidget(QWidget *parent)
 
     initPagePlayingUI();
 
-    initWidgetPlaylistsLeftUI();
-    // testAddButton();
+    initPagePlaylistsUI();
+    // initWidgetPlaylistsLeftUI();
 
     initPageLibraryUI();
 
@@ -109,48 +109,94 @@ void CentralWidget::initPagePlayingUI()
 }
 
 //Page_Playlists
-void CentralWidget::updatePlaylistsNaviButtonPtrs()
-{
-    playlistsNaviButtonPtrs = ui->scrollAreaWidget_Playlists->findChildren<QPushButton *>();
-    foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
-        playlistsNaviButtonPtr->setCheckable(true);
-    }
-}
-
-// void CentralWidget::testAddButton()
+// void CentralWidget::updatePlaylistsNaviButtonPtrs()
 // {
-//     int i = 0;
-//     foreach (QPushButton* buttonPtr, vct_ButtonPtrs) {
-//         QString str = "Button " + QString::number(i);
-//         buttonPtr = new QPushButton(str, ui->scrollAreaWidget_Playlists);
-//         QLayout * sa = ui->scrollAreaWidget_Playlists->layout();
-//         sa->addWidget(buttonPtr);
-//         i++;
-//         connect(buttonPtr, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+//     playlistsNaviButtonPtrs = ui->scrollAreaWidget_Playlists->findChildren<QPushButton *>();
+//     foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
+//         playlistsNaviButtonPtr->setCheckable(true);
 //     }
-//     updatePlaylistsNaviButtonPtrs();
 // }
 
-void CentralWidget::initWidgetPlaylistsLeftUI()
-{
-    updatePlaylistsNaviButtonPtrs();
+// void CentralWidget::initWidgetPlaylistsLeftUI()
+// {
+//     updatePlaylistsNaviButtonPtrs();
 
-    foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
-        if(playlistsNaviButtonPtr->objectName() == "button_Playlists_favor") {
+//     foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
+//         if(playlistsNaviButtonPtr->objectName() == "button_Playlists_current") {
+//             playlistsNaviButtonPtr->setChecked(true);
+//         }
+//         connect(playlistsNaviButtonPtr, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+//     }
+// }
+
+void CentralWidget::initPagePlaylistsUI()
+{
+    tableView_Playlists = ui->tableView_Playlists;
+    tableView_Playlists->setModel(&standardItemModel_Playlists);
+    standardItemModel_Playlists.setColumnCount(5);
+    standardItemModel_Playlists.setHeaderData(0, Qt::Horizontal, "Title");
+    standardItemModel_Playlists.setHeaderData(1, Qt::Horizontal, "Artist");
+    standardItemModel_Playlists.setHeaderData(2, Qt::Horizontal, "Album");
+    standardItemModel_Playlists.setHeaderData(3, Qt::Horizontal, "Size");
+    standardItemModel_Playlists.setHeaderData(4, Qt::Horizontal, "Duration");
+    tableView_Playlists->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    tableView_Playlists->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    tableView_Playlists->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    tableView_Playlists->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+    tableView_Playlists->horizontalHeader()->resizeSection(3, 100);
+    tableView_Playlists->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
+    tableView_Playlists->horizontalHeader()->resizeSection(4, 100);
+    tableView_Playlists->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    tableView_Playlists->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView_Playlists->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView_Playlists->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    // tableView_Library->verticalHeader()->setVisible(false);
+    ui->tableView_Playlists->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QMap<qint64, QString> pl_IDNAME_Map;
+    qry.prepare("SELECT * FROM playlists");
+    if (qry.exec()) {
+        while (qry.next()) {
+            pl_IDNAME_Map[qry.value(0).toLongLong()] = qry.value(1).toString();
+        }
+    }
+
+    QMapIterator<qint64, QString> it(pl_IDNAME_Map);
+    while (it.hasNext()) {
+        it.next();
+        QString str = it.value();
+        QPushButton* newButtonPtr = new QPushButton(str, ui->scrollAreaWidget_Playlists);
+        QLayout * layout = ui->scrollAreaWidget_Playlists->layout();
+        layout->removeItem(ui->vSpacer_Playlists);
+        layout->addWidget(newButtonPtr);
+        layout->addItem(ui->vSpacer_Playlists);
+        connect(newButtonPtr, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+    }
+
+    connect(ui->button_Playlists_current, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+
+    foreach (QPushButton *playlistsNaviButtonPtr, ui->scrollAreaWidget_Playlists->findChildren<QPushButton *>()) {
+        if (playlistsNaviButtonPtr->objectName() == "button_Playlists_current") {
+            playlistsNaviButtonPtr->setCheckable(true);
             playlistsNaviButtonPtr->setChecked(true);
         }
-        connect(playlistsNaviButtonPtr, &QPushButton::clicked, this, &CentralWidget::handlePlaylistsNaviButtonClick);
+        playlistsNaviButtonPtr->setCheckable(true);
     }
+
+//     updateLibraryModelData();
+
+//     connect(tableView_Library->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CentralWidget::onSelectionChanged);
+//
 }
 
 void CentralWidget::handlePlaylistsNaviButtonClick()
 {
-    updatePlaylistsNaviButtonPtrs();
+    // updatePlaylistsNaviButtonPtrs();
 
     QPushButton *clickedButtonPtr = (QPushButton *)sender();
 
-    foreach (QPushButton *playlistsNaviButtonPtr, playlistsNaviButtonPtrs) {
-        if(playlistsNaviButtonPtr == clickedButtonPtr) {
+    foreach (QPushButton *playlistsNaviButtonPtr, ui->scrollAreaWidget_Playlists->findChildren<QPushButton *>()) {
+        if (playlistsNaviButtonPtr == clickedButtonPtr) {
             playlistsNaviButtonPtr->setChecked(true);
         } else {
             playlistsNaviButtonPtr->setChecked(false);
