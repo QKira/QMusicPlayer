@@ -55,14 +55,13 @@ public:
                             QString &darkColorEnd,
                             QString &highColor);
 
-    static void showMessageBoxInfo(const QString &info, int closeSec = 0);
+    static void showMessageBoxInfo(const QString &info);
 
-    static void showMessageBoxError(const QString &info, int closeSec = 0);
+    static void showMessageBoxError(const QString &info);
 
     static int showMessageBoxQuestion(const QString &info);
 
-    static QString showInputBox(bool &ok, const QString &title, int type = 0, int closeSec = 0,
-                                QString defaultValue = QString(), bool pwd = false);
+    static QString showInputBox(bool &ok, const QString &title, int type = 0, QString defaultValue = QString(), bool pwd = false);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *evt) override;
@@ -160,7 +159,6 @@ public:
     }
 
 protected:
-    void closeEvent(QCloseEvent *);
     bool eventFilter(QObject *obj, QEvent *evt);
 
 private:
@@ -188,14 +186,9 @@ private:
                     QPushButton *btn_Ok;
                     QPushButton *btn_Cancel;
 
-private:
-    int closeSec;                   //总显示时间
-    int currentSec;                 //当前已显示时间
-
 private slots:
-    void initControl();             //初始化控件
-    void initForm();                //初始化窗体
-    void checkSec();                //校验倒计时
+    void initControl();
+    void initForm();
 
 private slots:
     void handleBtnOkClick();
@@ -203,7 +196,7 @@ private slots:
     void handleBtnCancelClick();//
 
 public:
-    void setMessage(const QString &msg, int type, int closeSec = 0);
+    void setMessage(const QString &msg, int type);
 };
 
 
@@ -232,7 +225,6 @@ public:
     }
 
 protected:
-    void closeEvent(QCloseEvent *);
     bool eventFilter(QObject *obj, QEvent *evt);
 
 private:
@@ -260,25 +252,19 @@ private:
     QPushButton *btn_Cancel;
 
 private:
-    int closeSec;                   //总显示时间
-    int currentSec;                 //当前已显示时间
-    QString value;                  //当前值
+    QString value;
 
 private slots:
-    void initControl();             //初始化控件
-    void initForm();                //初始化窗体
-    void checkSec();                //校验倒计时
+    void initControl();
+    void initForm();
 
 private slots:
     void handleBtnOkClick();
     void handleBtnCancelClick();
 
 public:
-    void setParameter(const QString &title, int type = 0, int closeSec = 0,
-                      QString defaultValue = QString(), bool pwd = false);
-
+    void setParameter(const QString &title, int type = 0, QString defaultValue = QString(), bool pwd = false);
     QString getValue()const;
-
 };
 
 

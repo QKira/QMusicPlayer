@@ -882,7 +882,7 @@ QScrollArea#scrollArea_Playlists QScrollBar::handle:vertical {
     border-radius: 3px;
 }
 
-QWidget#widget_Playlists_BottomLeft QPushButton {
+QWidget#widget_Playlists_Left QPushButton {
     border-radius: 0px;
     color: #000000;
     background: none;
@@ -890,13 +890,13 @@ QWidget#widget_Playlists_BottomLeft QPushButton {
     background-color: #F5F5F5;
 }
 
-QWidget#widget_Playlists_BottomLeft QPushButton:hover {
+QWidget#widget_Playlists_Left QPushButton:hover {
     color: #FFFFFF;
     background-color: #00BB9E;
 }
 
-QWidget#widget_Playlists_BottomLeft QPushButton:checked,
-QWidget#widget_Playlists_BottomLeft QPushButton:pressed {
+QWidget#widget_Playlists_Left QPushButton:checked,
+QWidget#widget_Playlists_Left QPushButton:pressed {
     color: #FFFFFF;
     background-color: #00BB9E;
 }

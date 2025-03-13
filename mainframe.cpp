@@ -68,15 +68,15 @@ void MainFrame::getQssColor(const QString &qss, QString &textColor, QString &pan
         highColor = str.mid(indexHighColor + flagHighColor.length(), 7);
 }
 
-void MainFrame::showMessageBoxInfo(const QString &info, int closeSec)
+void MainFrame::showMessageBoxInfo(const QString &info)
 {
-    QMFMessageBox::Instance()->setMessage(info, 0, closeSec);
+    QMFMessageBox::Instance()->setMessage(info, 0);
     QMFMessageBox::Instance()->show();
 }
 
-void MainFrame::showMessageBoxError(const QString &info, int closeSec)
+void MainFrame::showMessageBoxError(const QString &info)
 {
-    QMFMessageBox::Instance()->setMessage(info, 2, closeSec);
+    QMFMessageBox::Instance()->setMessage(info, 2);
     QMFMessageBox::Instance()->show();
 }
 
@@ -87,10 +87,10 @@ int MainFrame::showMessageBoxQuestion(const QString &info)
     return msg.exec();
 }
 
-QString MainFrame::showInputBox(bool &ok, const QString &title, int type, int closeSec, QString defaultValue, bool pwd)
+QString MainFrame::showInputBox(bool &ok, const QString &title, int type, QString defaultValue, bool pwd)
 {
     QMFInputBox input;
-    input.setParameter(title, type, closeSec, defaultValue, pwd);
+    input.setParameter(title, type, defaultValue, pwd);
     ok = input.exec();
     return input.getValue();
 }
@@ -673,45 +673,11 @@ void QMFMessageBox::initForm()
         btn->setIconSize(QSize(iconWidth, iconHeight));
     }
 
-    closeSec = 0;
-    currentSec = 0;
-
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(1000);
-    connect(timer, SIGNAL(timeout()), this, SLOT(checkSec()));
-    timer->start();
-
     this->installEventFilter(this);
 }
 
-void QMFMessageBox::checkSec()
+void QMFMessageBox::setMessage(const QString &msg, int type)
 {
-    if (closeSec == 0)
-    {
-        return;
-    }
-
-    if (currentSec < closeSec)
-    {
-        currentSec++;
-    }
-    else
-    {
-        this->close();
-    }
-
-    QString str = QString("关闭倒计时 %1 s").arg(closeSec - currentSec + 1);
-    this->label_Time->setText(str);
-}
-
-void QMFMessageBox::setMessage(const QString &msg, int type, int closeSec)
-{
-    this->closeSec = closeSec;
-    this->currentSec = 0;
-    this->label_Time->clear();
-
-    checkSec();
-
     if (type == 0)
     {
         this->label_IconMain->setStyleSheet("border-image: url(:/images/img/msg_info.png);");
@@ -732,12 +698,6 @@ void QMFMessageBox::setMessage(const QString &msg, int type, int closeSec)
 
     this->label_Info->setText(msg);
     this->setWindowTitle(this->label_Title->text());
-}
-
-void QMFMessageBox::closeEvent(QCloseEvent *)
-{
-    closeSec = 0;
-    currentSec = 0;
 }
 
 bool QMFMessageBox::eventFilter(QObject *obj, QEvent *evt)
@@ -972,46 +932,12 @@ void QMFInputBox::initForm()
         btn->setIconSize(QSize(iconWidth, iconHeight));
     }
 
-    closeSec = 0;
-    currentSec = 0;
-
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(1000);
-    connect(timer, SIGNAL(timeout()), this, SLOT(checkSec()));
-    timer->start();
-
     this->installEventFilter(this);
 }
 
-void QMFInputBox::checkSec()
+void QMFInputBox::setParameter(const QString &title, int type, QString defaultValue, bool pwd)
 {
-    if (closeSec == 0)
-    {
-        return;
-    }
-
-    if (currentSec < closeSec)
-    {
-        currentSec++;
-    }
-    else
-    {
-        this->close();
-    }
-
-    QString str = QString("关闭倒计时 %1 s").arg(closeSec - currentSec + 1);
-    this->label_Time->setText(str);
-}
-
-void QMFInputBox::setParameter(const QString &title, int type, int closeSec,
-                               QString defaultValue, bool pwd)
-{
-    this->closeSec = closeSec;
-    this->currentSec = 0;
-    this->label_Time->clear();
     this->label_Info->setText(title);
-
-    checkSec();
 
     if (type == 0)
     {
@@ -1027,18 +953,15 @@ void QMFInputBox::setParameter(const QString &title, int type, int closeSec,
     {
         this->txtValue->setVisible(false);
         this->cboxValue->addItems(defaultValue.split("|"));
+        if (defaultValue == "无可添加歌单") {
+            this->btn_Ok->setEnabled(false);
+        }
     }
 }
 
 QString QMFInputBox::getValue() const
 {
     return this->value;
-}
-
-void QMFInputBox::closeEvent(QCloseEvent *)
-{
-    closeSec = 0;
-    currentSec = 0;
 }
 
 bool QMFInputBox::eventFilter(QObject *obj, QEvent *evt)
