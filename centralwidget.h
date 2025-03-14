@@ -46,11 +46,13 @@ private:
 //     void openMask();
 //     void closeMask();
 
+
 //Database
 private:
     DatabaseManager dbm;
     QSqlQuery qry;
     QString sql;
+
 
 //widget_Left
 private:
@@ -60,21 +62,23 @@ private:
 private slots:
     void handleNaviButtonClick();
 
+
 //Page_Playing
 private:
     float detailPicScale;
     void initPagePlayingUI();
 
+
 //Page_Playlists
 private:
-    // QList<QPushButton *> playlistsNaviButtonPtrs;
-    // void updatePlaylistsNaviButtonPtrs();
-    // void initWidgetPlaylistsLeftUI();
     QTableView* tableView_Playlists;
     QStandardItemModel standardItemModel_Playlists;
     void initPagePlaylistsUI();
+    void updatePlaylistsNaviButton();
+    void updatePlaylistsModelData();
 private slots:
     void handlePlaylistsNaviButtonClick();
+
 
 //Page_Library
 private:
@@ -88,6 +92,8 @@ private slots:
     void handleButtonLibraryNewPLClick();
     void handleButtonLibraryAdd2PLClick();
     void handleButtonLibraryDelSongClick();
+
+
 //Page_Statistics
 
 

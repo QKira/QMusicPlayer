@@ -997,7 +997,7 @@ padding: 0;
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QPushButton" name="button_Playlists_current">
+                    <widget class="QPushButton" name="button_Playlist_current">
                      <property name="text">
                       <string>当前列表</string>
                      </property>
