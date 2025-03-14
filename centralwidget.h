@@ -2,10 +2,9 @@
 #define CENTRALWIDGET_H
 
 #include <QWidget>
-#include <array>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qtableview.h>
+#include <QLabel>
+#include <QPushButton>
+#include <QTableView>
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include "databasemanager.h"
@@ -17,6 +16,7 @@
 #include <QFile>
 #include <QImage>
 #include <QBuffer>
+#include <QMenu>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -78,6 +78,8 @@ private:
     void updatePlaylistsModelData();
 private slots:
     void handlePlaylistsNaviButtonClick();
+    void playlistsNaviButtonMenu(const QPoint &pos);
+    void playlistsTableViewMenu(const QPoint &pos);
 
 
 //Page_Library
