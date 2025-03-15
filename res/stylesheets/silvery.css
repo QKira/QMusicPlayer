@@ -458,7 +458,7 @@ QSlider::handle:horizontal {
     width: 13px;
     margin-top: -3px;
     margin-bottom: -3px;
-    margin-left: 1px;
+    margin-left: 0px;
     border-radius: 6px;
     background: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5, stop:0.6 #F5F5F5, stop:0.8 #B2B6B9);
 }
@@ -901,19 +901,34 @@ QWidget#widget_Playlists_Left QPushButton:pressed {
     background-color: #00BB9E;
 }
 
-/*QWidget#widget_Playing_TimeContainer QPushButton {
-    border: none;
-    background-color: #F5F5F5;
+#hSlider_Volume::groove:horizontal {
+    background: #E1E4E6;
+    height: 5px;
+    border-radius: 2px;
 }
 
-QWidget#widget_Playing_TimeContainer QPushButton:hover {
-    image: url(:/stylesheets/res/stylesheets/silvery/calendar_nextmonth.png);
+#hSlider_Volume::add-page:horizontal {
+    background: #E1E4E6;
+    height: 5px;
+    border-radius: 2px;
 }
 
-QWidget#widget_Playing_TimeContainer QPushButton:checked,
-QWidget#widget_Playing_TimeContainer QPushButton:pressed {
-    image: url(:/stylesheets/res/stylesheets/silvery/calendar_nextmonth.png);
-}*/
+#hSlider_Volume::sub-page:horizontal {
+    background: #B2B6B9;
+    height: 5px;
+    border-radius: 2px;
+}
+
+#hSlider_Volume::handle:horizontal {
+    width: 8px;
+    height: 8px;
+    margin-top: -2px;
+    margin-bottom: -2px;
+    margin-left: 0px;
+    border-radius: 4px;
+    background: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5, stop:0.6 #F5F5F5, stop:0.8 #B2B6B9);
+}
+
 
 /* EXTRA END */
 

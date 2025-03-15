@@ -235,7 +235,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_Playing">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -325,14 +325,14 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="label_Playing_SongName">
+                  <widget class="QLabel" name="label_Playing_Title">
                    <property name="text">
                     <string>Song Name</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_Playing_SongArtist">
+                  <widget class="QLabel" name="label_Playing_Artist">
                    <property name="text">
                     <string>Artist</string>
                    </property>
@@ -365,45 +365,30 @@
              <property name="styleSheet">
               <string notr="true">/*border:1px solid blue;*/</string>
              </property>
-             <widget class="QWidget" name="widget_Playing_NaviBtnBlock" native="true">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>170</y>
-                <width>100</width>
-                <height>100</height>
-               </rect>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <property name="spacing">
+               <number>5</number>
               </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
+              <property name="leftMargin">
+               <number>10</number>
               </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>16777215</height>
-               </size>
+              <property name="topMargin">
+               <number>10</number>
               </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-              </layout>
-             </widget>
+              <property name="rightMargin">
+               <number>10</number>
+              </property>
+              <property name="bottomMargin">
+               <number>10</number>
+              </property>
+              <item>
+               <widget class="QListWidget" name="listWidget_Lyrics">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -577,7 +562,7 @@
                     </property>
                     <layout class="QHBoxLayout" name="horizontalLayout_12">
                      <property name="spacing">
-                      <number>0</number>
+                      <number>5</number>
                      </property>
                      <property name="leftMargin">
                       <number>0</number>
@@ -592,24 +577,24 @@
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QLabel" name="label_3">
+                      <widget class="QLabel" name="label_Volume">
                        <property name="minimumSize">
                         <size>
-                         <width>20</width>
-                         <height>20</height>
+                         <width>15</width>
+                         <height>15</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>20</width>
-                         <height>20</height>
+                         <width>15</width>
+                         <height>15</height>
                         </size>
                        </property>
                        <property name="text">
                         <string/>
                        </property>
                        <property name="pixmap">
-                        <pixmap resource="res.qrc">:/icons/res/icons/icon_2c2c2c/caret-right.png</pixmap>
+                        <pixmap resource="res.qrc">:/icons/res/icons/volume.png</pixmap>
                        </property>
                        <property name="scaledContents">
                         <bool>true</bool>
@@ -617,7 +602,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSlider" name="horizontalSlider">
+                      <widget class="QSlider" name="hSlider_Volume">
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
@@ -630,8 +615,14 @@
                          <height>16777215</height>
                         </size>
                        </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
                        <property name="pageStep">
                         <number>5</number>
+                       </property>
+                       <property name="value">
+                        <number>99</number>
                        </property>
                        <property name="orientation">
                         <enum>Qt::Orientation::Horizontal</enum>
@@ -676,6 +667,10 @@
                        <property name="text">
                         <string/>
                        </property>
+                       <property name="icon">
+                        <iconset resource="res.qrc">
+                         <normaloff>:/icons/res/icons/playing_prev.png</normaloff>:/icons/res/icons/playing_prev.png</iconset>
+                       </property>
                        <property name="iconSize">
                         <size>
                          <width>30</width>
@@ -701,6 +696,10 @@
                        <property name="text">
                         <string/>
                        </property>
+                       <property name="icon">
+                        <iconset resource="res.qrc">
+                         <normaloff>:/icons/res/icons/playing_play.png</normaloff>:/icons/res/icons/playing_play.png</iconset>
+                       </property>
                        <property name="iconSize">
                         <size>
                          <width>30</width>
@@ -725,6 +724,10 @@
                        </property>
                        <property name="text">
                         <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="res.qrc">
+                         <normaloff>:/icons/res/icons/playing_next.png</normaloff>:/icons/res/icons/playing_next.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -768,17 +771,11 @@
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QPushButton" name="button_Playing_FunctionOne_3">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
+                      <widget class="QRadioButton" name="radioButton_SingleLoop">
                        <property name="minimumSize">
                         <size>
                          <width>20</width>
-                         <height>0</height>
+                         <height>20</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -787,35 +784,23 @@
                          <height>20</height>
                         </size>
                        </property>
-                       <property name="styleSheet">
-                        <string notr="true">border-radius: 10px;
-min-height: 0px;
-padding: 0;
-</string>
+                       <property name="toolTip">
+                        <string>单曲循环</string>
                        </property>
                        <property name="text">
                         <string/>
                        </property>
-                       <property name="iconSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
+                       <property name="checked">
+                        <bool>false</bool>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="button_Playing_FunctionTwo">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
+                      <widget class="QRadioButton" name="radioButton_ListLoop">
                        <property name="minimumSize">
                         <size>
                          <width>20</width>
-                         <height>0</height>
+                         <height>20</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -824,35 +809,23 @@ padding: 0;
                          <height>20</height>
                         </size>
                        </property>
-                       <property name="styleSheet">
-                        <string notr="true">border-radius: 10px;
-min-height: 0px;
-padding: 0;
-</string>
+                       <property name="toolTip">
+                        <string>列表循环</string>
                        </property>
                        <property name="text">
                         <string/>
                        </property>
-                       <property name="iconSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
+                       <property name="checked">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="button_Playing_FunctionOne">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
+                      <widget class="QRadioButton" name="radioButton_RandomLoop">
                        <property name="minimumSize">
                         <size>
                          <width>20</width>
-                         <height>0</height>
+                         <height>20</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -861,20 +834,11 @@ padding: 0;
                          <height>20</height>
                         </size>
                        </property>
-                       <property name="styleSheet">
-                        <string notr="true">border-radius: 10px;
-min-height: 0px;
-padding: 0;
-</string>
+                       <property name="toolTip">
+                        <string>随机播放</string>
                        </property>
                        <property name="text">
                         <string/>
-                       </property>
-                       <property name="iconSize">
-                        <size>
-                         <width>20</width>
-                         <height>20</height>
-                        </size>
                        </property>
                       </widget>
                      </item>
@@ -977,7 +941,7 @@ padding: 0;
                     <x>0</x>
                     <y>0</y>
                     <width>98</width>
-                    <height>477</height>
+                    <height>28</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_8">

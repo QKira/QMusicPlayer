@@ -17,6 +17,9 @@
 #include <QImage>
 #include <QBuffer>
 #include <QMenu>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QRandomGenerator>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -24,6 +27,23 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 }
+
+struct SongInfo {
+    qint64 song_id;
+    QString song_title;
+    QString song_artist;
+    QString song_album;
+    QString song_lyrics;
+    qint64 song_duration;
+    qint64 song_size;
+    QString cover_path;
+    QString song_path;
+};
+
+struct LyricLine {
+    qint64 time;
+    QString text;
+};
 
 namespace Ui {
 class CentralWidget;
@@ -65,8 +85,36 @@ private slots:
 
 //Page_Playing
 private:
+    QMediaPlayer player;
+    QList<SongInfo> currentPlaylist;
+    int currentIndex = 0;
+    int prevIndex = 0;
+    int nextIndex = 0;
+    int playMode = 1;
+    bool playStatus = false;
     float detailPicScale;
+    QList<LyricLine> currentLyrics;
     void initPagePlayingUI();
+    void updatecurrentPlaylist();
+    void playSong();
+    void pauseSong();
+    void playPrev();
+    void playNext();
+    QList<LyricLine> lyricsParser(const QString &lyrics);
+    void updateLyrics(qint64 position);
+    void setLyricHighlight(int index);
+    void loadLyrics(const QString &lyricText);
+
+private slots:
+    void handleRadioButtonPlayModeClick();
+    void handleButtonPlayingPlayClick();
+    void handleButtonPlayingPlayPrevClick();
+    void handleButtonPlayingPlayNextClick();
+    void handleStateChanged(QMediaPlayer::PlaybackState state);
+    void handleSourceChanged(const QUrl &media);
+    void handleDurationChanged(qint64 duration);
+    void handlePositionChanged(qint64 position);
+    void handleMetaDataChanged();
 
 
 //Page_Playlists
@@ -94,6 +142,8 @@ private slots:
     void handleButtonLibraryNewPLClick();
     void handleButtonLibraryAdd2PLClick();
     void handleButtonLibraryDelSongClick();
+    void handleSliderVolumeChanged(int value);
+    void handleSliderProgressChanged(int value);
 
 
 //Page_Statistics

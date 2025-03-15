@@ -15,7 +15,6 @@ CentralWidget::CentralWidget(QWidget *parent)
     initPagePlayingUI();
 
     initPagePlaylistsUI();
-    // initWidgetPlaylistsLeftUI();
 
     initPageLibraryUI();
 
@@ -95,19 +94,337 @@ void CentralWidget::handleNaviButtonClick()
         ui->stackedWidget->setCurrentIndex(4);
 }
 
+
 //Page_Playing
 void CentralWidget::initPagePlayingUI()
 {
-    QPixmap pixmap{":/images/res/images/preview.jpg"};
-    pixmap.scaled(ui->label_Playing_DetailPic->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    ui->label_Playing_DetailPic->setPixmap(pixmap);
-    ui->label_Playing_DetailPic->setScaledContents(true);
-    int imgW = pixmap.width();
-    int imgH = pixmap.height();
-    detailPicScale = imgW / imgH;
-    ui->label_Playing_DetailPic->resize(imgW, imgH);
-    ui->label_Playing_DetailPic->move(0, 0);
+    // QPixmap pixmap{":/images/res/images/preview.jpg"};
+    // pixmap.scaled(ui->label_Playing_DetailPic->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    // ui->label_Playing_DetailPic->setPixmap(pixmap);
+    // ui->label_Playing_DetailPic->setScaledContents(true);
+    // int imgW = pixmap.width();
+    // int imgH = pixmap.height();
+    // detailPicScale = imgW / imgH;
+    // ui->label_Playing_DetailPic->resize(imgW, imgH);
+    // ui->label_Playing_DetailPic->move(0, 0);
+
+    updatecurrentPlaylist();
+
+    playMode = 1;
+    playStatus = false;
+    currentIndex = 0;
+    prevIndex = 0;
+    nextIndex = 0;
+    QAudioOutput *audio_Output = new QAudioOutput(this);
+    player.setAudioOutput(audio_Output);
+
+    connect(ui->slider_Playing_Progress, &QSlider::sliderMoved, this, &CentralWidget::handleSliderProgressChanged);
+
+    float initialVolume = 100.0f / 100.0f;
+    player.audioOutput()->setVolume(initialVolume);
+    ui->hSlider_Volume->setValue(100);
+    connect(ui->hSlider_Volume, &QSlider::valueChanged, this, &CentralWidget::handleSliderVolumeChanged);
+
+    connect(ui->button_Playing_Play, &QPushButton::clicked, this, &CentralWidget::handleButtonPlayingPlayClick);
+    connect(ui->button_Playing_Prev, &QPushButton::clicked, this, &CentralWidget::handleButtonPlayingPlayPrevClick);
+    connect(ui->button_Playing_Next, &QPushButton::clicked, this, &CentralWidget::handleButtonPlayingPlayNextClick);
+    connect(ui->radioButton_ListLoop, &QRadioButton::clicked, this, &CentralWidget::handleRadioButtonPlayModeClick);
+    connect(ui->radioButton_RandomLoop, &QRadioButton::clicked, this, &CentralWidget::handleRadioButtonPlayModeClick);
+    connect(ui->radioButton_SingleLoop, &QRadioButton::clicked, this, &CentralWidget::handleRadioButtonPlayModeClick);
+
+    connect(&player, &QMediaPlayer::positionChanged, this, &CentralWidget::handlePositionChanged);
+    connect(&player, &QMediaPlayer::durationChanged, this, &CentralWidget::handleDurationChanged);
+    connect(&player, &QMediaPlayer::sourceChanged, this, &CentralWidget::handleSourceChanged);
+    connect(&player, &QMediaPlayer::playbackStateChanged, this,  &CentralWidget::handleStateChanged);
+    connect(&player, &QMediaPlayer::metaDataChanged, this,  &CentralWidget::handleMetaDataChanged);
+
+    ui->listWidget_Lyrics->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listWidget_Lyrics->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listWidget_Lyrics->setSpacing(5);
 }
+
+void CentralWidget::updatecurrentPlaylist()
+{
+    currentPlaylist.clear();
+    sql = QString("SELECT s.song_id, s.song_title, s.song_artist, s.song_album, s.song_lyrics, s.song_size, s.song_duration, s.cover_path, s.song_path FROM songs s JOIN playlist_current pc ON s.song_id = pc.song_id");
+    if (qry.exec(sql)) {
+        while (qry.next()) {
+            SongInfo item;
+            item.song_id = qry.value(0).toLongLong();
+            item.song_title = qry.value(1).toString();
+            item.song_artist = qry.value(2).toString();
+            item.song_album = qry.value(3).toString();
+            item.song_lyrics = qry.value(4).toString();
+            item.song_size = qry.value(5).toLongLong();
+            item.song_duration = qry.value(6).toLongLong();
+            item.cover_path = qry.value(7).toString();
+            item.song_path = qry.value(8).toString();
+            currentPlaylist.append(item);
+        }
+    }
+    currentIndex = 0;
+}
+
+void CentralWidget::playSong()
+{
+    if (currentPlaylist.isEmpty()) {
+        MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
+        return;
+    }
+
+    // 获取当前播放的歌曲信息
+    SongInfo song = currentPlaylist[currentIndex];
+
+    // 设置播放器的音频源
+    player.setSource(QUrl::fromLocalFile(song.song_path));
+
+    loadLyrics(song.song_lyrics);
+
+    // 开始播放
+    player.play();
+    playStatus = true;
+
+    // 更新播放按钮图标
+    ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_pause.png"));
+
+    // 更新 UI 显示
+    ui->label_Playing_Title->setText(song.song_title);
+    ui->label_Playing_Artist->setText(song.song_artist);
+    // ui->label_Playing_Album->setText(song.song_album);
+
+    // 更新封面图片
+    QPixmap cover(song.cover_path);
+    if (!cover.isNull()) {
+        QPixmap pixmap(cover);
+        pixmap.scaled(ui->label_Playing_DetailPic->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        ui->label_Playing_DetailPic->setPixmap(cover);
+        ui->label_Playing_DetailPic->setScaledContents(true);
+        int imgW = pixmap.width();
+        int imgH = pixmap.height();
+        detailPicScale = imgW / imgH;
+        ui->label_Playing_DetailPic->resize(imgW, imgH);
+        ui->label_Playing_DetailPic->move(0, 0);
+    } else {
+        ui->label_Playing_DetailPic->setPixmap(QPixmap(":/images/res/images/preview.jpg"));
+    }
+
+    // 计算 prevIndex 和 nextIndex
+    if (currentPlaylist.size() > 1) {
+        prevIndex = (currentIndex - 1 + currentPlaylist.size()) % currentPlaylist.size();
+        nextIndex = (currentIndex + 1) % currentPlaylist.size();
+    }
+}
+
+QList<LyricLine> CentralWidget::lyricsParser(const QString &lyrics)
+{
+    QList<LyricLine> lyricList;
+    QRegularExpression regex(R"(\[(\d+):(\d+\.\d+)\](.*))"); // 解析 [分钟:秒.毫秒] 格式
+    QRegularExpressionMatch match;
+
+    QStringList lines = lyrics.split("\n");  // 按行拆分歌词
+    for (const QString &line : lines) {
+        match = regex.match(line);
+        if (match.hasMatch()) {
+            int minutes = match.captured(1).toInt();
+            float seconds = match.captured(2).toFloat();
+            qint64 timeMs = (minutes * 60 + seconds) * 1000; // 转换为毫秒
+            QString text = match.captured(3).trimmed(); // 获取歌词内容
+
+            lyricList.append({timeMs, text});
+        }
+    }
+    return lyricList;
+}
+
+void CentralWidget::updateLyrics(qint64 position)
+{
+    if (currentLyrics.isEmpty()) return;
+
+    for (int i = 0; i < currentLyrics.size(); ++i) {
+        if (i < currentLyrics.size() - 1) {
+            if (position >= currentLyrics[i].time && position < currentLyrics[i + 1].time) {
+                setLyricHighlight(i);
+                break;
+            }
+        } else { // 最后一行
+            if (position >= currentLyrics[i].time) {
+                setLyricHighlight(i);
+                break;
+            }
+        }
+    }
+}
+
+void CentralWidget::setLyricHighlight(int index)
+{
+    // for (int i = 0; i < ui->listWidget_Lyrics->count(); ++i) {
+    //     QListWidgetItem *item = ui->listWidget_Lyrics->item(i);
+    //     if (i == index) {
+    //         item->setForeground(QBrush(Qt::yellow)); // 高亮当前行
+    //         ui->listWidget_Lyrics->setCurrentRow(i);
+    //     } else {
+    //         item->setForeground(QBrush(Qt::white));
+    //     }
+    // }
+
+    for (int i = 0; i < ui->listWidget_Lyrics->count(); ++i) {
+        QListWidgetItem *item = ui->listWidget_Lyrics->item(i);
+        if (i == index) {
+            item->setForeground(QBrush(Qt::black)); // 当前行高亮
+            item->setFont(QFont("Microsoft YaHei", 14, QFont::Bold)); // 加粗字体
+        } else {
+            item->setForeground(QBrush(Qt::black));
+            item->setFont(QFont("Microsoft YaHei", 12)); // 恢复正常字体
+        }
+        // 让歌词文本居中
+        item->setTextAlignment(Qt::AlignCenter);
+    }
+
+    int visibleCount = ui->listWidget_Lyrics->height() / ui->listWidget_Lyrics->sizeHintForRow(0);
+    int scrollTo = index - visibleCount / 2; // 让当前行居中
+    if (scrollTo < 0) scrollTo = 0; // 避免负值
+    ui->listWidget_Lyrics->scrollToItem(ui->listWidget_Lyrics->item(scrollTo), QAbstractItemView::PositionAtCenter);
+}
+
+void CentralWidget::loadLyrics(const QString &lyricText)
+{
+    currentLyrics = lyricsParser(lyricText);
+    ui->listWidget_Lyrics->clear();
+
+    for (const auto &line : currentLyrics) {
+        ui->listWidget_Lyrics->addItem(line.text);
+    }
+}
+
+void CentralWidget::handleRadioButtonPlayModeClick()
+{
+    if (ui->radioButton_SingleLoop->isChecked()) {
+        playMode = 0;
+    } else if (ui->radioButton_ListLoop->isChecked()) {
+        playMode = 1;
+    } else if (ui->radioButton_RandomLoop->isChecked()) {
+        playMode = 2;
+    }
+}
+
+void CentralWidget::handleButtonPlayingPlayClick()
+{
+    // if (playStatus) {
+    //     ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_play.png"));
+    //     playStatus = !playStatus;
+    // } else {
+    //     ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_pause.png"));
+    //     playStatus = !playStatus;
+    // }
+
+    // if (!currentPlaylist.isEmpty()) {
+    //     if(playMode == 0) {
+    //         if (player.)
+    //     }
+    // } else {
+    //     MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
+    // }
+
+    if (currentPlaylist.isEmpty()) {
+        MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
+        return;
+    }
+
+    if (player.playbackState() == QMediaPlayer::PlayingState) {
+        player.pause();
+        playStatus = false;
+        ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_play.png"));
+    } else {
+        player.play();
+        playStatus = true;
+        ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_pause.png"));
+    }
+}
+
+void CentralWidget::handleButtonPlayingPlayPrevClick()
+{
+    if (currentPlaylist.isEmpty()) {
+        MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
+        return;
+    }
+
+    currentIndex = prevIndex;
+    playSong();
+}
+
+void CentralWidget::handleButtonPlayingPlayNextClick()
+{
+    if (currentPlaylist.isEmpty()) {
+        MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
+        return;
+    }
+
+    currentIndex = nextIndex;
+    playSong();
+}
+
+void CentralWidget::handleStateChanged(QMediaPlayer::PlaybackState state)
+{
+    if (state == QMediaPlayer::StoppedState) {
+        if (playMode == 0) { // 单曲循环
+            playSong();
+        } else if (playMode == 1) { // 列表循环
+            handleButtonPlayingPlayNextClick();
+        } else if (playMode == 2) { // 随机播放
+            currentIndex = QRandomGenerator::global()->bounded(currentPlaylist.size());
+            playSong();
+        }
+    }
+}
+
+void CentralWidget::handleSourceChanged(const QUrl &media)
+{
+
+}
+
+void CentralWidget::handleDurationChanged(qint64 duration)
+{
+    if (duration > 0) {
+        ui->slider_Playing_Progress->setMinimum(0);  // 进度条最小值
+        ui->slider_Playing_Progress->setMaximum(static_cast<int>(duration));  // 进度条最大值
+    }
+
+    // 显示总时长
+    QTime time(0, 0, 0);
+    time = time.addMSecs(duration);
+    ui->label_Playing_TotalTime->setText(time.toString("mm:ss"));
+}
+
+void CentralWidget::handlePositionChanged(qint64 position)
+{
+    ui->slider_Playing_Progress->setValue(static_cast<int>(position));
+
+    // 转换时间格式（00:00）
+    QTime time(0, 0, 0);
+    time = time.addMSecs(position);
+    ui->label_Playing_CurTime->setText(time.toString("mm:ss"));
+
+    updateLyrics(position);
+}
+
+void CentralWidget::handleMetaDataChanged()
+{
+
+}
+
+void CentralWidget::handleSliderVolumeChanged(int value)
+{
+    if (player.audioOutput()) {
+        float volume = static_cast<float>(value) / 100.0f;  // 映射到 0.0 ~ 1.0
+        player.audioOutput()->setVolume(volume);
+    }
+}
+
+void CentralWidget::handleSliderProgressChanged(int value)
+{
+    player.setPosition(static_cast<qint64>(value));
+}
+
 
 //Page_Playlists
 void CentralWidget::initPagePlaylistsUI()
@@ -1103,5 +1420,4 @@ void CentralWidget::paintEvent(QPaintEvent *event)
         ui->label_Playing_DetailPic->move(0, 0);
     }
 }
-
 
