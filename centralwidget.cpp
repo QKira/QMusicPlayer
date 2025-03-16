@@ -18,6 +18,8 @@ CentralWidget::CentralWidget(QWidget *parent)
 
     initPageLibraryUI();
 
+    initPageStatisticsUI();
+
     initPageSettingsUI();
 }
 
@@ -25,29 +27,6 @@ CentralWidget::~CentralWidget()
 {
     delete ui;
 }
-
-// //Mask
-// void CentralWidget::initMask()
-// {
-//     widget_Mask = new QWidget(this);
-//     widget_Mask->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-//     widget_Mask->hide();
-//     widget_Mask->setWindowOpacity(0.8);
-//     widget_Mask->setStyleSheet("background-color:black");
-//     widget_Mask->setFixedSize(this->width(), this->height() - 26);
-// }
-
-// void CentralWidget::openMask()
-// {
-//     widget_Mask->setFixedSize(this->width(), this->height() - 26);
-//     widget_Mask->move(this->mapToGlobal(this->pos()));
-//     widget_Mask->show();
-// }
-
-// void CentralWidget::closeMask()
-// {
-//     widget_Mask->hide();
-// }
 
 
 //widget_Left
@@ -108,13 +87,12 @@ void CentralWidget::initPagePlayingUI()
     // ui->label_Playing_DetailPic->resize(imgW, imgH);
     // ui->label_Playing_DetailPic->move(0, 0);
 
-    updatecurrentPlaylist();
-
     playMode = 1;
     playStatus = false;
     currentIndex = 0;
     prevIndex = 0;
     nextIndex = 0;
+
     QAudioOutput *audio_Output = new QAudioOutput(this);
     player.setAudioOutput(audio_Output);
 
@@ -141,6 +119,8 @@ void CentralWidget::initPagePlayingUI()
     ui->listWidget_Lyrics->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidget_Lyrics->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidget_Lyrics->setSpacing(5);
+
+    updatecurrentPlaylist();
 }
 
 void CentralWidget::updatecurrentPlaylist()
@@ -163,6 +143,37 @@ void CentralWidget::updatecurrentPlaylist()
         }
     }
     currentIndex = 0;
+
+    if (!currentPlaylist.isEmpty()) {
+        SongInfo song = currentPlaylist[currentIndex];
+
+        player.setSource(QUrl::fromLocalFile(song.song_path));
+
+        loadLyrics(song.song_lyrics);
+
+        ui->label_Playing_Title->setText(song.song_title);
+        ui->label_Playing_Artist->setText(song.song_artist);
+
+        QPixmap cover(song.cover_path);
+        if (!cover.isNull()) {
+            QPixmap pixmap(cover);
+            pixmap.scaled(ui->label_Playing_DetailPic->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            ui->label_Playing_DetailPic->setPixmap(cover);
+            ui->label_Playing_DetailPic->setScaledContents(true);
+            int imgW = pixmap.width();
+            int imgH = pixmap.height();
+            detailPicScale = imgW / imgH;
+            ui->label_Playing_DetailPic->resize(imgW, imgH);
+            ui->label_Playing_DetailPic->move(0, 0);
+        } else {
+            ui->label_Playing_DetailPic->setPixmap(QPixmap(":/images/res/images/preview.jpg"));
+        }
+
+        if (currentPlaylist.size() > 1) {
+            prevIndex = (currentIndex - 1 + currentPlaylist.size()) % currentPlaylist.size();
+            nextIndex = (currentIndex + 1) % currentPlaylist.size();
+        }
+    }
 }
 
 void CentralWidget::playSong()
@@ -174,6 +185,15 @@ void CentralWidget::playSong()
 
     // 获取当前播放的歌曲信息
     SongInfo song = currentPlaylist[currentIndex];
+
+    qint64 song_id = song.song_id;
+    qry.prepare("INSERT INTO songs_statistics (song_id, play_time) VALUES (?, ?)");
+    qry.addBindValue(song_id);
+    qry.addBindValue(QDateTime::currentSecsSinceEpoch());
+    if (!qry.exec()) {
+        qDebug() << "CentralWidget::playSong()" << qry.lastError().text();
+    }
+
 
     // 设置播放器的音频源
     player.setSource(QUrl::fromLocalFile(song.song_path));
@@ -190,7 +210,6 @@ void CentralWidget::playSong()
     // 更新 UI 显示
     ui->label_Playing_Title->setText(song.song_title);
     ui->label_Playing_Artist->setText(song.song_artist);
-    // ui->label_Playing_Album->setText(song.song_album);
 
     // 更新封面图片
     QPixmap cover(song.cover_path);
@@ -257,33 +276,20 @@ void CentralWidget::updateLyrics(qint64 position)
 
 void CentralWidget::setLyricHighlight(int index)
 {
-    // for (int i = 0; i < ui->listWidget_Lyrics->count(); ++i) {
-    //     QListWidgetItem *item = ui->listWidget_Lyrics->item(i);
-    //     if (i == index) {
-    //         item->setForeground(QBrush(Qt::yellow)); // 高亮当前行
-    //         ui->listWidget_Lyrics->setCurrentRow(i);
-    //     } else {
-    //         item->setForeground(QBrush(Qt::white));
-    //     }
-    // }
-
     for (int i = 0; i < ui->listWidget_Lyrics->count(); ++i) {
         QListWidgetItem *item = ui->listWidget_Lyrics->item(i);
         if (i == index) {
             item->setForeground(QBrush(Qt::black)); // 当前行高亮
-            item->setFont(QFont("Microsoft YaHei", 14, QFont::Bold)); // 加粗字体
+            item->setFont(QFont("Microsoft YaHei", 12, QFont::Bold)); // 加粗字体
         } else {
             item->setForeground(QBrush(Qt::black));
-            item->setFont(QFont("Microsoft YaHei", 12)); // 恢复正常字体
+            item->setFont(QFont("Microsoft YaHei", 10)); // 恢复正常字体
         }
         // 让歌词文本居中
         item->setTextAlignment(Qt::AlignCenter);
     }
 
-    int visibleCount = ui->listWidget_Lyrics->height() / ui->listWidget_Lyrics->sizeHintForRow(0);
-    int scrollTo = index - visibleCount / 2; // 让当前行居中
-    if (scrollTo < 0) scrollTo = 0; // 避免负值
-    ui->listWidget_Lyrics->scrollToItem(ui->listWidget_Lyrics->item(scrollTo), QAbstractItemView::PositionAtCenter);
+    ui->listWidget_Lyrics->scrollToItem(ui->listWidget_Lyrics->item(index), QAbstractItemView::PositionAtCenter);
 }
 
 void CentralWidget::loadLyrics(const QString &lyricText)
@@ -292,7 +298,11 @@ void CentralWidget::loadLyrics(const QString &lyricText)
     ui->listWidget_Lyrics->clear();
 
     for (const auto &line : currentLyrics) {
-        ui->listWidget_Lyrics->addItem(line.text);
+        QListWidgetItem *item = new QListWidgetItem(line.text);
+        item->setTextAlignment(Qt::AlignCenter);
+        item->setForeground(QBrush(Qt::black));
+        item->setFont(QFont("Microsoft YaHei", 10));
+        ui->listWidget_Lyrics->addItem(item);
     }
 }
 
@@ -309,22 +319,6 @@ void CentralWidget::handleRadioButtonPlayModeClick()
 
 void CentralWidget::handleButtonPlayingPlayClick()
 {
-    // if (playStatus) {
-    //     ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_play.png"));
-    //     playStatus = !playStatus;
-    // } else {
-    //     ui->button_Playing_Play->setIcon(QIcon(":/icons/res/icons/playing_pause.png"));
-    //     playStatus = !playStatus;
-    // }
-
-    // if (!currentPlaylist.isEmpty()) {
-    //     if(playMode == 0) {
-    //         if (player.)
-    //     }
-    // } else {
-    //     MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
-    // }
-
     if (currentPlaylist.isEmpty()) {
         MainFrame::showMessageBoxInfo("当前列表暂无歌曲");
         return;
@@ -591,6 +585,9 @@ void CentralWidget::playlistsNaviButtonMenu(const QPoint &pos)
         }
         QSqlDatabase::database().commit();
         updatePlaylistsModelData();
+        if (clickedButton->objectName() != "button_Playlist_current") {
+            updatecurrentPlaylist();
+        }
     } else if (selectedAction->text() == "播放此列表") {
         QSqlDatabase::database().transaction();
         qry.prepare("DELETE FROM playlist_current");
@@ -607,6 +604,7 @@ void CentralWidget::playlistsNaviButtonMenu(const QPoint &pos)
         }
         QSqlDatabase::database().commit();
         updatePlaylistsModelData();
+        updatecurrentPlaylist();
     } else if (selectedAction->text() == "删除此列表") {
         QSqlDatabase::database().transaction();
         qry.prepare("DELETE FROM playlists WHERE pl_id = ?");
@@ -659,6 +657,7 @@ void CentralWidget::playlistsTableViewMenu(const QPoint &pos)
             }
         }
         updatePlaylistsModelData();
+        updatecurrentPlaylist();
     }
 }
 
@@ -895,7 +894,7 @@ void CentralWidget::handleButtonLibraryAdd2PLClick()
                 // qDebug() << "选中的行:" << row << " song_id:" << song_id;
                 sql = QString("SELECT * FROM %1 WHERE song_id = %2").arg("playlist_" + QString::number(pl_id)).arg(song_id);
                 if (qry.exec(sql) && qry.first()) {
-                    qDebug() << "CentralWidget::handleButtonLibraryAdd2PLClick()->" << song_id << ": 已存在" << qry.lastError().text();
+                    // qDebug() << "CentralWidget::handleButtonLibraryAdd2PLClick()->" << song_id << ": 已存在" << qry.lastError().text();
                     continue;
                 }
                 sql = QString("INSERT INTO %1 (song_id) VALUES (%2)").arg("playlist_" + QString::number(pl_id)).arg(song_id);
@@ -988,6 +987,271 @@ void CentralWidget::handleButtonLibraryDelSongClick()
 
 
 //Page_Statistics
+void CentralWidget::initPageStatisticsUI()
+{
+    tableView_StatisticsDay = ui->tableView_Statistics_Day;
+    tableView_StatisticsDay->setModel(&standardItemModel_StatisticsDay);
+    standardItemModel_StatisticsDay.setColumnCount(2);
+    standardItemModel_StatisticsDay.setHeaderData(0, Qt::Horizontal, "Title");
+    standardItemModel_StatisticsDay.setHeaderData(1, Qt::Horizontal, "Count");
+    tableView_StatisticsDay->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    tableView_StatisticsDay->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    tableView_StatisticsDay->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView_StatisticsDay->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView_StatisticsDay->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView_StatisticsDay->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    // tableView_StatisticsDay->verticalHeader()->setVisible(false);
+    tableView_StatisticsDay->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    tableView_StatisticsWeek = ui->tableView_Statistics_Week;
+    tableView_StatisticsWeek->setModel(&standardItemModel_StatisticsWeek);
+    standardItemModel_StatisticsWeek.setColumnCount(2);
+    standardItemModel_StatisticsWeek.setHeaderData(0, Qt::Horizontal, "Title");
+    standardItemModel_StatisticsWeek.setHeaderData(1, Qt::Horizontal, "Count");
+    tableView_StatisticsWeek->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    tableView_StatisticsWeek->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    tableView_StatisticsWeek->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView_StatisticsWeek->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView_StatisticsWeek->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView_StatisticsWeek->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    // tableView_StatisticsWeek->verticalHeader()->setVisible(false);
+    tableView_StatisticsWeek->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    tableView_StatisticsMonth = ui->tableView_Statistics_Month;
+    tableView_StatisticsMonth->setModel(&standardItemModel_StatisticsMonth);
+    standardItemModel_StatisticsMonth.setColumnCount(2);
+    standardItemModel_StatisticsMonth.setHeaderData(0, Qt::Horizontal, "Title");
+    standardItemModel_StatisticsMonth.setHeaderData(1, Qt::Horizontal, "Count");
+    tableView_StatisticsMonth->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    tableView_StatisticsMonth->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    tableView_StatisticsMonth->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView_StatisticsMonth->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView_StatisticsMonth->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView_StatisticsMonth->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    // tableView_StatisticsMonth->verticalHeader()->setVisible(false);
+    tableView_StatisticsMonth->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    connect(ui->button_Statistics_Day, &QPushButton::clicked, this, &CentralWidget::handleStatisticsButtonClick);
+    connect(ui->button_Statistics_Week, &QPushButton::clicked, this, &CentralWidget::handleStatisticsButtonClick);
+    connect(ui->button_Statistics_Month, &QPushButton::clicked, this, &CentralWidget::handleStatisticsButtonClick);
+
+    updateStatisticsModelData();
+}
+
+void CentralWidget::updateStatisticsModelData()
+{
+    standardItemModel_StatisticsDay.removeRows(0, standardItemModel_StatisticsDay.rowCount());
+    sql = QString(
+        "SELECT s.song_id, s.song_title, COUNT(ss.song_id) AS play_count "
+        "FROM songs_statistics AS ss "
+        "JOIN songs AS s ON ss.song_id = s.song_id "
+        "WHERE ss.play_time >= CAST(STRFTIME('%s', 'now', '-1 day') AS INTEGER) "
+        "GROUP BY s.song_id, s.song_title "
+        "ORDER BY play_count DESC "
+        "LIMIT 20;"
+        );
+    if (qry.exec(sql)) {
+        int cnt = 0;
+        while (qry.next()) {
+            QString song_title = qry.value(1).toString();
+            QStandardItem* titleItem = new QStandardItem(song_title);
+            titleItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_StatisticsDay.setItem(cnt, 0, titleItem);
+            QString count = qry.value(2).toString();
+            QStandardItem* countItem = new QStandardItem(count);
+            countItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_StatisticsDay.setItem(cnt, 1, countItem);
+            cnt++;
+        }
+    } else {
+        qDebug() << "CentralWidget::updatePlaylistsModelData()->查询失败：" << qry.lastError().text();
+    }
+
+    standardItemModel_StatisticsWeek.removeRows(0, standardItemModel_StatisticsWeek.rowCount());
+    sql = QString(
+        "SELECT s.song_id, s.song_title, COUNT(ss.song_id) AS play_count "
+        "FROM songs_statistics AS ss "
+        "JOIN songs AS s ON ss.song_id = s.song_id "
+        "WHERE ss.play_time >= CAST(STRFTIME('%s', 'now', '-7 days') AS INTEGER) "
+        "GROUP BY s.song_id, s.song_title "
+        "ORDER BY play_count DESC "
+        "LIMIT 20;"
+        );
+    if (qry.exec(sql)) {
+        int cnt = 0;
+        while (qry.next()) {
+            QString song_title = qry.value(1).toString();
+            QStandardItem* titleItem = new QStandardItem(song_title);
+            titleItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_StatisticsWeek.setItem(cnt, 0, titleItem);
+            QString count = qry.value(2).toString();
+            QStandardItem* countItem = new QStandardItem(count);
+            countItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_StatisticsWeek.setItem(cnt, 1, countItem);
+            cnt++;
+        }
+    } else {
+        qDebug() << "CentralWidget::updatePlaylistsModelData()->查询失败：" << qry.lastError().text();
+    }
+
+    standardItemModel_StatisticsMonth.removeRows(0, standardItemModel_StatisticsMonth.rowCount());
+    sql = QString(
+        "SELECT s.song_id, s.song_title, COUNT(ss.song_id) AS play_count "
+        "FROM songs_statistics AS ss "
+        "JOIN songs AS s ON ss.song_id = s.song_id "
+        "WHERE ss.play_time >= CAST(STRFTIME('%s', 'now', '-30 days') AS INTEGER) "
+        "GROUP BY s.song_id, s.song_title "
+        "ORDER BY play_count DESC "
+        "LIMIT 20;"
+        );
+    if (qry.exec(sql)) {
+        int cnt = 0;
+        while (qry.next()) {
+            QString song_title = qry.value(1).toString();
+            QStandardItem* titleItem = new QStandardItem(song_title);
+            titleItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_StatisticsMonth.setItem(cnt, 0, titleItem);
+            QString count = qry.value(2).toString();
+            QStandardItem* countItem = new QStandardItem(count);
+            countItem->setTextAlignment(Qt::AlignCenter);
+            standardItemModel_StatisticsMonth.setItem(cnt, 1, countItem);
+            cnt++;
+        }
+    } else {
+        qDebug() << "CentralWidget::updatePlaylistsModelData()->查询失败：" << qry.lastError().text();
+    }
+}
+
+void CentralWidget::handleStatisticsButtonClick()
+{
+    QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
+    if (!clickedButton) return;
+
+    if (clickedButton == ui->button_Statistics_Day) {
+        QSqlDatabase::database().transaction();
+
+        qry.prepare("DELETE FROM playlist_current");
+        if (!qry.exec()) {
+            qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        sql = QString(
+            "SELECT song_id FROM songs_statistics "
+            "WHERE play_time >= CAST(STRFTIME('%s', 'now', '-1 day') AS INTEGER) "
+            "GROUP BY song_id "
+            "ORDER BY COUNT(song_id) DESC "
+            "LIMIT 20;"
+            );
+        QList<qint64> songIds;
+        if (qry.exec(sql)) {
+            while (qry.next()) {
+                songIds.append(qry.value(0).toLongLong());
+            }
+        } else {
+            qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        qry.prepare("INSERT INTO playlist_current (song_id) VALUES (?)");
+        for (qint64 song_id : songIds) {
+            qry.addBindValue(song_id);
+            if (!qry.exec()) {
+                qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+                QSqlDatabase::database().rollback();
+                return;
+            }
+        }
+
+        QSqlDatabase::database().commit();
+        updatePlaylistsModelData();
+        updatecurrentPlaylist();
+    } else if (clickedButton == ui->button_Statistics_Week) {
+        QSqlDatabase::database().transaction();
+
+        qry.prepare("DELETE FROM playlist_current");
+        if (!qry.exec()) {
+            qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        sql = QString(
+            "SELECT song_id FROM songs_statistics "
+            "WHERE play_time >= CAST(STRFTIME('%s', 'now', '-7 days') AS INTEGER) "
+            "GROUP BY song_id "
+            "ORDER BY COUNT(song_id) DESC "
+            "LIMIT 20;"
+            );
+        QList<qint64> songIds;
+        if (qry.exec(sql)) {
+            while (qry.next()) {
+                songIds.append(qry.value(0).toLongLong());
+            }
+        } else {
+            qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        qry.prepare("INSERT INTO playlist_current (song_id) VALUES (?)");
+        for (qint64 song_id : songIds) {
+            qry.addBindValue(song_id);
+            if (!qry.exec()) {
+                qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+                QSqlDatabase::database().rollback();
+                return;
+            }
+        }
+
+        QSqlDatabase::database().commit();
+        updatePlaylistsModelData();
+        updatecurrentPlaylist();
+    } else if (clickedButton == ui->button_Statistics_Month) {
+        QSqlDatabase::database().transaction();
+
+        qry.prepare("DELETE FROM playlist_current");
+        if (!qry.exec()) {
+            qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        sql = QString(
+            "SELECT song_id FROM songs_statistics "
+            "WHERE play_time >= CAST(STRFTIME('%s', 'now', '-30 days') AS INTEGER) "
+            "GROUP BY song_id "
+            "ORDER BY COUNT(song_id) DESC "
+            "LIMIT 20;"
+            );
+        QList<qint64> songIds;
+        if (qry.exec(sql)) {
+            while (qry.next()) {
+                songIds.append(qry.value(0).toLongLong());
+            }
+        } else {
+            qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        qry.prepare("INSERT INTO playlist_current (song_id) VALUES (?)");
+        for (qint64 song_id : songIds) {
+            qry.addBindValue(song_id);
+            if (!qry.exec()) {
+                qDebug() << "CentralWidget::handleStatisticsButtonClick()->" << qry.lastError().text();
+                QSqlDatabase::database().rollback();
+                return;
+            }
+        }
+
+        QSqlDatabase::database().commit();
+        updatePlaylistsModelData();
+        updatecurrentPlaylist();
+    }
+}
 
 
 //Page_Settings

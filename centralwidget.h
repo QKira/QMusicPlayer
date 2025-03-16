@@ -59,13 +59,6 @@ public:
 private:
     Ui::CentralWidget *ui;
 
-// //Mask
-// private:
-//     QWidget* widget_Mask;
-//     void initMask();
-//     void openMask();
-//     void closeMask();
-
 
 //Database
 private:
@@ -147,6 +140,17 @@ private slots:
 
 
 //Page_Statistics
+private:
+    QTableView* tableView_StatisticsDay;
+    QStandardItemModel standardItemModel_StatisticsDay;
+    QTableView* tableView_StatisticsWeek;
+    QStandardItemModel standardItemModel_StatisticsWeek;
+    QTableView* tableView_StatisticsMonth;
+    QStandardItemModel standardItemModel_StatisticsMonth;
+    void initPageStatisticsUI();
+    void updateStatisticsModelData();
+private slots:
+    void handleStatisticsButtonClick();
 
 
 //Page_Settings
